@@ -63,9 +63,8 @@ if {$point ne ""} {
 # Polygon intersection test
 #############################
 # Draw poly with points 
-proc draw_poly {canv poly {color \#000000} {dir "-"}} {
+proc draw_poly {canv poly {color \#000000} {dir "-"} {marker_size 4}} {
     $canv create polygon {*}$poly -outline $color -fill {} -width 3
-    set marker_size 4
     set prev ""
     foreach {x y} $poly {
         # Draw point
@@ -124,4 +123,38 @@ puts "==== poly2 ===="
 foreach v [$poly2 get_vertices] {
     puts "INTERSECTION: $poly2: $v: [$v get_is_intersection]"
 }
+
+
+#############################
+# Check if a point is inside a polygon
+#############################
+
+set poly [clip::polygon create {420 100 480 100 480 200 420 200}]
+draw_poly .c [$poly get_poly] \#00ff00 - 0
+
+foreach test {
+    {420 100}
+    {480 100}
+    {480 200}
+    {420 200}
+    {450 100}
+    {450 200}
+    {420 150}
+    {480 150}
+    {450 150}
+    {400 150}
+    {500 150}
+    {450 80}
+    {450 220}
+} {
+    puts "INFO: PinP Test for: $test inside $poly"
+    puts "Result: [$poly encloses {*}$test]"
+    # draw it
+    .c create text {*}$test -text [$poly encloses {*}$test]
+}
+
+#.c postscript -file [file join [file dirname [info script]] output.ps]
+
+
+
 

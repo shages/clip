@@ -19,6 +19,7 @@ proc clip::polygon::create {poly} {
         namespace export get_poly
         namespace export get_start
         namespace export get_vertices
+        namespace export encloses
         # "Starting" vertex of the polygon
         variable start_vertex
 
@@ -75,6 +76,56 @@ proc clip::polygon::create {poly} {
         # Returns list of vertex objects belonging to this polygon
         proc get_vertices {} {
             return [get_poly 1]
+        }
+
+        # Test if point is inside this polygon
+        # Based off of algorithm here: 
+        #   http://geomalgorithms.com/a03-_inclusion.html
+        proc encloses {x y} {
+            variable start_vertex
+
+            # is_left(): tests if a point is Left|On|Right of an infinite line.
+            #    Input:  three points P0, P1, and P2
+            #    Return: >0 for P2 left of the line through P0 and P1
+            #            =0 for P2  on the line
+            #            <0 for P2  right of the line
+            proc is_left {p0 p1 p2} {
+                return [expr {
+                    ([lindex $p1 0] - [lindex $p0 0])*([lindex $p2 1] - [lindex $p0 1])
+                    - ([lindex $p2 0] - [lindex $p0 0])*([lindex $p1 1] - [lindex $p0 1])
+                }]
+            }
+
+            set wn 0                ; # winding number
+            set prev $start_vertex
+            set current [$prev get_next]
+            set dof 1               ; # do while flag
+            while {$dof || $prev ne $start_vertex} {
+                set dof 0
+
+                if {[lindex [$prev getc] 1] <= $y} {
+                    # start lower
+                    if {[lindex [$current getc] 1] > $y} {
+                        # upward crossing
+                        if {[is_left [$prev getc] [$current getc] [list $x $y]] > 0} {
+                            # valid up intersect
+                            incr wn
+                        }
+                    }
+                } else {
+                    # start higher
+                    if {[lindex [$current getc] 1] <= $y} {
+                        # downward crossing
+                        if {[is_left [$prev getc] [$current getc] [list $x $y]] < 0} {
+                            # valid down intersect
+                            set wn [expr $wn - 1]
+                        }
+                    }
+                }
+                set prev $current
+                set current [$current get_next]
+            }
+            return $wn
         }
 
         namespace ensemble create
