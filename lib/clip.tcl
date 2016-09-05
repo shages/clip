@@ -68,13 +68,15 @@ proc clip::create_intersections {poly1 poly2} {
     set start1 [$poly1 get_start]
     set prev1 $start1
     set current1 [$start1 get_next]
-    while {$current1 ne $start1} {
+    set dof1 1
+    while {$dof1 || $prev1 ne $start1} {
         set line1 [list $prev1 $current1]
 
         set start2 [$poly2 get_start]
         set prev2 $start2
         set current2 [$start2 get_next]
-        while {$current2 ne $start2} {
+        set dof2 1
+        while {$dof2 || $prev2 ne $start2} {
             set line2 [list $prev2 $current2]
             puts "DEBUG: LINE1: $line1"
             puts "DEBUG: LINE1: $line2"
@@ -97,10 +99,12 @@ proc clip::create_intersections {poly1 poly2} {
             }
             set prev2 $current2
             set current2 [$current2 get_next]
+            set dof2 0
         }
 
         set prev1 $current1
         set current1 [$current1 get_next]
+        set dof1 0
     }
 }
 
