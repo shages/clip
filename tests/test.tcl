@@ -1,88 +1,92 @@
 #!/usr/bin/env tclsh
 package require Tk
 
-lappend auto_path [file join [pwd] lib]
+lappend auto_path [pwd]
 package require clip
 
-set v1 [clip::vertex::create 100 100]
-set v2 [clip::vertex::create 200 300]
-set v3 [clip::vertex::create 500 50]
+# setup canvas
+grid [canvas .c -width 600 -height 600 -background \#ffffff]
+
+#############################
+# Vertex creation
+#############################
+set v1 [clip::vertex::create 40 10]
+set v2 [clip::vertex::create 20 30]
+set v3 [clip::vertex::create 50 50]
 puts "v1: [$v1 getc]"
 puts "v2: [$v2 getc]"
 puts "v3: [$v3 getc]"
-
-grid [canvas .c -width 600 -height 600 -background \#ffffff]
-.c create line {*}[concat [$v1 getc] [$v2 getc] [$v3 getc]] -width 4 -fill \#ff00ff
 .c create line {*}[concat {0 0} [$v1 getc]] -width 1 -fill \#0000ff
 .c create line {*}[concat {0 0} [$v2 getc]] -width 1 -fill \#0000ff
 .c create line {*}[concat {0 0} [$v3 getc]] -width 1 -fill \#0000ff
-.c create polygon {*}[concat [$v1 getc] [$v2 getc] [$v3 getc]] -fill \#eeff00 -outline {}
 
+#############################
+# Polygon creation
+#############################
 set poly [clip::polygon create {200 200 250 200 250 250 200 250}]
 foreach i {3 4 5 6} {
     puts [clip::vertex::V_${i} get_prev]
     puts [clip::vertex::V_${i} get_next]
 }
-#puts "INFO: start_vertex: $clip::polygon::${poly}::start_vertex"
 puts "INFO: Poly: [$poly get_poly]"
 .c create polygon {*}[$poly get_poly] -fill {} -outline \#bb00ff -fill {} -width 4
 
-#.c create polygon {*}$cpoly -outline \#ff0000 -fill {} -width 5 
-#.c create polygon {*}$spoly -outline \#0000cc -fill {}
-#.c lower [.c create polygon {*}[clippoly $cpoly $spoly] -fill \#ffff99 -outline {}]
-
+#############################
 # Inserting a vertex
+#############################
 puts "BEFORE: [$poly get_poly]"
 clip::vertex::insert_after 301 299 [$poly get_start]
 puts "AFTER:  [$poly get_poly]"
 
+#############################
+# Intersect two lines
+#############################
 # Create two lines
-set l1 [list [clip::vertex::create 200 0] [clip::vertex::create 300 160]]
-set l2 [list [clip::vertex::create 0 100] [clip::vertex::create 500 0]]
+set l1 [list [clip::vertex::create 200 50] [clip::vertex::create 300 160]]
+set l2 [list [clip::vertex::create 220 130] [clip::vertex::create 400 75]]
 .c create line {*}[concat [[lindex $l1 0] getc] [[lindex $l1 1] getc]] -width 3 -fill \#00ff00
 .c create line {*}[concat [[lindex $l2 0] getc] [[lindex $l2 1] getc]] -width 3 -fill \#0000ff
 
-# Intersect two lines
+# Intersect them
 set point [clip::intersect \
 [list {*}[[lindex $l1 0] getc] {*}[[lindex $l1 1] getc]] \
 [list {*}[[lindex $l2 0] getc] {*}[[lindex $l2 1] getc]] \
 ]
 if {$point ne ""} {
-    puts "Intersection at: $point"
+    puts "INFO: Intersection at: $point"
     .c create text {*}$point -text "intersection"
 } else {
-    puts "Intersection not found"
+    puts "ERROR: Intersection not found"
 }
 
+#############################
+# Polygon intersection test
+#############################
 # Draw poly with points 
 proc draw_poly {canv poly {color \#000000} {dir "-"}} {
+    $canv create polygon {*}$poly -outline $color -fill {} -width 3
+    set marker_size 4
     set prev ""
     foreach {x y} $poly {
-        puts "XY: $x $y"
-        if {$prev == ""} {
-        } else {
-            $canv create line {*}$prev $x $y -width 3  -fill $color
-        }
         # Draw point
-        set size 4
-        $canv create line $x $y [expr $x + $size] [expr $y $dir $size] -width $size -fill \#000000
+        $canv create line $x $y [expr $x + $marker_size] [expr $y $dir $marker_size] -width [expr $marker_size/2.0] -fill \#000000
         set prev [list $x $y]
     }
 }
 
 set polycoords1 {200 300 200 400 300 400 300 300}
-set polycoords2 {}
 foreach {x y} $polycoords1 {
     lappend polycoords2 [expr $x + 50]
     lappend polycoords2 [expr $y + 0]
 }
+set polycoords2 {220 300 220 400 280 400 280 300}
 
 foreach {x y} $polycoords1 {
     lappend polycoords3 [expr $x + 200]
     lappend polycoords3 [expr $y + 0]
 }
-foreach {x y} $polycoords3 {
-    lappend polycoords4 [expr $x + 50]
+foreach {x y} $polycoords2 {
+    lappend polycoords4 [expr $x + 200]
     lappend polycoords4 [expr $y + 0]
 }
 
@@ -93,6 +97,15 @@ set poly2 [clip::polygon create $polycoords2]
 draw_poly .c [$poly1 get_poly] \#0000ff
 draw_poly .c [$poly2 get_poly] \#ff0000 +
 
+puts "==== poly1 ===="
+foreach v [$poly1 get_vertices] {
+    puts "INTERSECTION: $poly1: $v: [$v get_is_intersection]"
+}
+
+puts "==== poly2 ===="
+foreach v [$poly2 get_vertices] {
+    puts "INTERSECTION: $poly2: $v: [$v get_is_intersection]"
+}
 
 set poly1 [clip::polygon create $polycoords3]
 set poly2 [clip::polygon create $polycoords4]
@@ -102,12 +115,12 @@ clip::create_intersections $poly1 $poly2
 draw_poly .c [$poly1 get_poly] \#0000ff
 draw_poly .c [$poly2 get_poly] \#ff0000 +
 
-# Get neighbors
-
+puts "==== poly1 ===="
 foreach v [$poly1 get_vertices] {
     puts "INTERSECTION: $poly1: $v: [$v get_is_intersection]"
 }
 
+puts "==== poly2 ===="
 foreach v [$poly2 get_vertices] {
     puts "INTERSECTION: $poly2: $v: [$v get_is_intersection]"
 }
