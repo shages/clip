@@ -102,5 +102,13 @@ clip::create_intersections $poly1 $poly2
 draw_poly .c [$poly1 get_poly] \#0000ff
 draw_poly .c [$poly2 get_poly] \#ff0000 +
 
+# Get neighbors
 
+foreach v [$poly1 get_vertices] {
+    puts "INTERSECTION: $poly1: $v: [$v get_is_intersection]"
+}
+
+foreach v [$poly2 get_vertices] {
+    puts "INTERSECTION: $poly2: $v: [$v get_is_intersection]"
+}
 

@@ -18,6 +18,7 @@ proc clip::polygon::create {poly} {
         #namespace export set_poly
         namespace export get_poly
         namespace export get_start
+        namespace export get_vertices
         # "Starting" vertex of the polygon
         variable start_vertex
 
@@ -52,16 +53,28 @@ proc clip::polygon::create {poly} {
         }
 
         # Returns even-number list of coordinates in this polygon
-        proc get_poly {} {
+        proc get_poly {{vertices 0}} {
             variable start_vertex
             set poly {}
+            set polyv {}
             lappend poly {*}[$start_vertex getc]
+            lappend polyv $start_vertex
             set current [$start_vertex get_next]
             while {$current ne $start_vertex} {
                 lappend poly {*}[$current getc]
+                lappend polyv $current
                 set current [$current get_next]
             }
-            return $poly
+            if {$vertices} {
+                return $polyv
+            } else {
+                return $poly
+            }
+        }
+
+        # Returns list of vertex objects belonging to this polygon
+        proc get_vertices {} {
+            return [get_poly 1]
         }
 
         namespace ensemble create
