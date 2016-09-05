@@ -1,7 +1,7 @@
 
-package provide clip::polygon 1.0
+package provide ghclip::polygon 1.0
 
-namespace eval clip::polygon {
+namespace eval ghclip::polygon {
     namespace export create
 
     variable counter 0
@@ -9,7 +9,7 @@ namespace eval clip::polygon {
     namespace ensemble create
 }
 
-proc clip::polygon::create {poly} {
+proc ghclip::polygon::create {poly} {
     variable counter
     set name P_${counter}
 
@@ -38,10 +38,10 @@ proc clip::polygon::create {poly} {
             set count 0
             foreach {x y} $poly {
                 if {$count > 0} {
-                    set new [clip::vertex::create $x $y $prev]
+                    set new [ghclip::vertex::create $x $y $prev]
                     $prev set_next $new
                 } else {
-                    set new [clip::vertex::create $x $y]
+                    set new [ghclip::vertex::create $x $y]
                     set start_vertex $new
                 }
                 set prev $new
@@ -134,7 +134,7 @@ proc clip::polygon::create {poly} {
     $name create $poly
 
     incr counter
-    set full_name "clip::polygon::$name"
+    set full_name "ghclip::polygon::$name"
     return $full_name
 }
 

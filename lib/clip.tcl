@@ -1,16 +1,16 @@
 
-package provide clip 1.0
-package require clip::vertex
-package require clip::polygon
+package provide ghclip 1.0
+package require ghclip::vertex
+package require ghclip::polygon
 
-namespace eval clip {
+namespace eval ghclip {
     namespace export intersect
     namespace export create_intersections
 }
 
 # Algorithm taken from:
 # http://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
-proc clip::intersect {s c} {
+proc ghclip::intersect {s c} {
     set s1x [lindex $s 0]
     set s1y [lindex $s 1]
     set s2x [lindex $s 2]
@@ -64,7 +64,7 @@ proc clip::intersect {s c} {
     ]
 }
 
-proc clip::create_intersections {poly1 poly2} {
+proc ghclip::create_intersections {poly1 poly2} {
     set start1 [$poly1 get_start]
     set prev1 $start1
     set current1 [$start1 get_next]
@@ -81,15 +81,15 @@ proc clip::create_intersections {poly1 poly2} {
             puts "DEBUG: LINE1: $line1"
             puts "DEBUG: LINE1: $line2"
             # Check lines for intersection
-            set inters [clip::intersect \
+            set inters [ghclip::intersect \
             [list {*}[[lindex $line1 0] getc] {*}[[lindex $line1 1] getc]] \
             [list {*}[[lindex $line2 0] getc] {*}[[lindex $line2 1] getc]] \
             ]
             if {$inters ne ""} {
                 puts "FOUND INTERSECTION at: $inters"
                 # insert them
-                set new1 [clip::vertex::insert_after {*}$inters $prev1]
-                set new2 [clip::vertex::insert_after {*}$inters $prev2]
+                set new1 [ghclip::vertex::insert_after {*}$inters $prev1]
+                set new2 [ghclip::vertex::insert_after {*}$inters $prev2]
                 # Set neighbors
                 $new1 set_neighbor $new2
                 $new2 set_neighbor $new1

@@ -2,7 +2,7 @@
 package require Tk
 
 lappend auto_path [pwd]
-package require clip
+package require ghclip
 
 # setup canvas
 grid [canvas .c -width 600 -height 600 -background \#ffffff]
@@ -10,9 +10,9 @@ grid [canvas .c -width 600 -height 600 -background \#ffffff]
 #############################
 # Vertex creation
 #############################
-set v1 [clip::vertex::create 40 10]
-set v2 [clip::vertex::create 20 30]
-set v3 [clip::vertex::create 50 50]
+set v1 [ghclip::vertex::create 40 10]
+set v2 [ghclip::vertex::create 20 30]
+set v3 [ghclip::vertex::create 50 50]
 puts "v1: [$v1 getc]"
 puts "v2: [$v2 getc]"
 puts "v3: [$v3 getc]"
@@ -23,10 +23,10 @@ puts "v3: [$v3 getc]"
 #############################
 # Polygon creation
 #############################
-set poly [clip::polygon create {200 200 250 200 250 250 200 250}]
+set poly [ghclip::polygon create {200 200 250 200 250 250 200 250}]
 foreach i {3 4 5 6} {
-    puts [clip::vertex::V_${i} get_prev]
-    puts [clip::vertex::V_${i} get_next]
+    puts [ghclip::vertex::V_${i} get_prev]
+    puts [ghclip::vertex::V_${i} get_next]
 }
 puts "INFO: Poly: [$poly get_poly]"
 .c create polygon {*}[$poly get_poly] -fill {} -outline \#bb00ff -fill {} -width 4
@@ -35,20 +35,20 @@ puts "INFO: Poly: [$poly get_poly]"
 # Inserting a vertex
 #############################
 puts "BEFORE: [$poly get_poly]"
-clip::vertex::insert_after 301 299 [$poly get_start]
+ghclip::vertex::insert_after 301 299 [$poly get_start]
 puts "AFTER:  [$poly get_poly]"
 
 #############################
 # Intersect two lines
 #############################
 # Create two lines
-set l1 [list [clip::vertex::create 200 50] [clip::vertex::create 300 160]]
-set l2 [list [clip::vertex::create 220 130] [clip::vertex::create 400 75]]
+set l1 [list [ghclip::vertex::create 200 50] [ghclip::vertex::create 300 160]]
+set l2 [list [ghclip::vertex::create 220 130] [ghclip::vertex::create 400 75]]
 .c create line {*}[concat [[lindex $l1 0] getc] [[lindex $l1 1] getc]] -width 3 -fill \#00ff00
 .c create line {*}[concat [[lindex $l2 0] getc] [[lindex $l2 1] getc]] -width 3 -fill \#0000ff
 
 # Intersect them
-set point [clip::intersect \
+set point [ghclip::intersect \
 [list {*}[[lindex $l1 0] getc] {*}[[lindex $l1 1] getc]] \
 [list {*}[[lindex $l2 0] getc] {*}[[lindex $l2 1] getc]] \
 ]
@@ -90,8 +90,8 @@ foreach {x y} $polycoords2 {
 }
 
 
-set poly1 [clip::polygon create $polycoords1]
-set poly2 [clip::polygon create $polycoords2]
+set poly1 [ghclip::polygon create $polycoords1]
+set poly2 [ghclip::polygon create $polycoords2]
 # draw them
 draw_poly .c [$poly1 get_poly] \#0000ff
 draw_poly .c [$poly2 get_poly] \#ff0000 +
@@ -106,10 +106,10 @@ foreach v [$poly2 get_vertices] {
     puts "INTERSECTION: $poly2: $v: [$v get_is_intersection]"
 }
 
-set poly1 [clip::polygon create $polycoords3]
-set poly2 [clip::polygon create $polycoords4]
-# clip them
-clip::create_intersections $poly1 $poly2
+set poly1 [ghclip::polygon create $polycoords3]
+set poly2 [ghclip::polygon create $polycoords4]
+# ghclip them
+ghclip::create_intersections $poly1 $poly2
 # draw them
 draw_poly .c [$poly1 get_poly] \#0000ff
 draw_poly .c [$poly2 get_poly] \#ff0000 +
@@ -129,7 +129,7 @@ foreach v [$poly2 get_vertices] {
 # Check if a point is inside a polygon
 #############################
 
-set poly [clip::polygon create {420 100 480 100 480 200 420 200}]
+set poly [ghclip::polygon create {420 100 480 100 480 200 420 200}]
 draw_poly .c [$poly get_poly] \#00ff00 - 0
 
 foreach test {

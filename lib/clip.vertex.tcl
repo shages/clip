@@ -1,7 +1,7 @@
 
-package provide clip::vertex 1.0
+package provide ghclip::vertex 1.0
 
-namespace eval clip::vertex {
+namespace eval ghclip::vertex {
     namespace export create
     namespace export insert_after
 
@@ -9,9 +9,9 @@ namespace eval clip::vertex {
 }
 
 
-proc clip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
+proc ghclip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
     # Create new vertex as a namespace with ensemle sub commands
-    # Namespaces are tracked with $clip::vertex::counter
+    # Namespaces are tracked with $ghclip::vertex::counter
     # 
     # Sub commands:
     #   set -- x y
@@ -101,11 +101,11 @@ proc clip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
     $name set_prev $prev
     $name set_next $next
     incr counter
-    return "::clip::vertex::$name"
+    return "::ghclip::vertex::$name"
 }
 
 # Inserts new vertex after the provided vertex
-proc clip::vertex::insert_after {x y first} {
+proc ghclip::vertex::insert_after {x y first} {
     set second [$first get_next]
     set new [create $x $y $first $second]
     $first set_next $new

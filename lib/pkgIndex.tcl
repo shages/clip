@@ -8,6 +8,6 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded clip 1.0 [list source [file join $dir clip.tcl]]
-package ifneeded clip::polygon 1.0 [list source [file join $dir clip.polygon.tcl]]
-package ifneeded clip::vertex 1.0 [list source [file join $dir clip.vertex.tcl]]
+package ifneeded ghclip 1.0 [list source [file join $dir clip.tcl]]
+package ifneeded ghclip::polygon 1.0 [list source [file join $dir clip.polygon.tcl]]
+package ifneeded ghclip::vertex 1.0 [list source [file join $dir clip.vertex.tcl]]
