@@ -29,11 +29,17 @@ proc clip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
         namespace export set_next
         namespace export get_prev
         namespace export get_next
+        namespace export set_neighbor
+        namespace export get_neighbor
+        namespace export set_is_intersection
+        namespace export get_is_intersection
 
         variable x 0
         variable y 0
         variable next "null"
         variable prev "null"
+        variable neighbor "null"
+        variable is_intersection 0
 
         proc setc {X Y} {
             variable x
@@ -67,6 +73,26 @@ proc clip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
             variable next
             return $next
         }
+
+        proc set_neighbor {Neighbor} {
+            variable neighbor
+            set neighbor $Neighbor
+        }
+
+        proc get_neighbor {} {
+            variable neighbor
+            return $neighbor
+        }
+
+        proc set_is_intersection {I} {
+            variable is_intersection
+            set is_intersection $I
+        }
+
+        proc get_is_intersection {} {
+            variable is_intersection
+            return $is_intersection
+        }
         
         namespace ensemble create
     }
@@ -84,6 +110,7 @@ proc clip::vertex::insert_after {x y first} {
     set new [create $x $y $first $second]
     $first set_next $new
     $second set_prev $new
+    return $new
 }
 
 

@@ -86,8 +86,14 @@ proc clip::create_intersections {poly1 poly2} {
             if {$inters ne ""} {
                 puts "FOUND INTERSECTION at: $inters"
                 # insert them
-                clip::vertex::insert_after {*}$inters $prev1 
-                clip::vertex::insert_after {*}$inters $prev2
+                set new1 [clip::vertex::insert_after {*}$inters $prev1]
+                set new2 [clip::vertex::insert_after {*}$inters $prev2]
+                # Set neighbors
+                $new1 set_neighbor $new2
+                $new2 set_neighbor $new1
+                # Set intersection
+                $new1 set_is_intersection 1
+                $new2 set_is_intersection 1
             }
             set prev2 $current2
             set current2 [$current2 get_next]
