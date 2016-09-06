@@ -1,0 +1,191 @@
+#!/usr/bin/env tclsh
+package require Tk
+
+lappend auto_path [pwd]
+package require ghclip
+
+# setup canvas
+grid [canvas .c -width 600 -height 600 -background \#ffffff]
+
+# Draw poly with points 
+proc draw_poly {canv poly {color \#000000} {dir "-"} {marker_size 4}} {
+    $canv create polygon {*}$poly -outline $color -fill {} -width 3
+    set prev ""
+    foreach {x y} $poly {
+        # Draw point
+        $canv create line $x $y [expr $x + $marker_size] [expr $y $dir $marker_size] -width [expr $marker_size/2.0] -fill \#000000
+        set prev [list $x $y]
+    }
+}
+
+#############################
+# Clip - mark entry/exits
+#############################
+
+puts ""
+puts "Entries/exits"
+set polycoords1 {200 300 200 400 300 400 300 300}
+foreach {x y} $polycoords1 {
+    lappend polycoords2 [expr $x + 50]
+    lappend polycoords2 [expr $y + 0]
+}
+set polycoords2 {220 280 220 420 280 420 280 280}
+
+foreach {x y} $polycoords1 {
+    lappend polycoords3 [expr $x + 200]
+    lappend polycoords3 [expr $y + 0]
+}
+foreach {x y} $polycoords2 {
+    lappend polycoords4 [expr $x + 200]
+    lappend polycoords4 [expr $y + 0]
+}
+
+
+set poly1 [ghclip::polygon create $polycoords3]
+set poly2 [ghclip::polygon create $polycoords4]
+
+draw_poly .c [$poly1 get_poly] \#0000ff
+draw_poly .c [$poly2 get_poly] \#ff0000 +
+    
+# Set intersections
+ghclip::create_intersections $poly1 $poly2
+
+puts "==== poly1 intersection ===="
+foreach v [$poly1 get_vertices] {
+    puts "INTERSECTION: $poly1: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+}
+puts "==== poly2 intersection ===="
+foreach v [$poly2 get_vertices] {
+    puts "INTERSECTION: $poly2: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+}
+
+
+# Re-use poly1/2 from above
+set rpolies [ghclip::clip $poly1 $poly2]
+
+foreach poly $rpolies {
+    .c create polygon {*}$poly -fill \#cccc00 -outline {}
+}
+
+puts "==== poly1 entry/exit  ===="
+foreach v [$poly1 get_vertices] {
+    puts "INTERSECTION: $poly1: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+}
+puts "==== poly2 entry/exit  ===="
+foreach v [$poly2 get_vertices] {
+    puts "INTERSECTION: $poly2: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+}
+
+
+#############################
+# Clip2 - mark entry/exits
+#############################
+
+puts ""
+puts "Entries/exits"
+set polycoords1 {100 100 100 200 200 200 200 100}
+set polycoords2 {80 100 80 200 200 200 200 100}
+
+set polycoords3 {}
+foreach {x y} $polycoords1 {
+    lappend polycoords3 [expr $x + 0]
+    lappend polycoords3 [expr $y + 0]
+}
+set polycoords4 {}
+foreach {x y} $polycoords2 {
+    lappend polycoords4 [expr $x + 0]
+    lappend polycoords4 [expr $y + 0]
+}
+
+
+set poly1 [ghclip::polygon create $polycoords3]
+set poly2 [ghclip::polygon create $polycoords4]
+
+draw_poly .c [$poly1 get_poly] \#0000ff
+draw_poly .c [$poly2 get_poly] \#ff0000 +
+    
+# Set intersections
+ghclip::create_intersections $poly1 $poly2
+
+puts "==== poly1 intersection ===="
+foreach v [$poly1 get_vertices] {
+    puts "INTERSECTION: $poly1: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+}
+puts "==== poly2 intersection ===="
+foreach v [$poly2 get_vertices] {
+    puts "INTERSECTION: $poly2: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+}
+
+
+# Re-use poly1/2 from above
+set rpolies [ghclip::clip $poly1 $poly2]
+
+foreach poly $rpolies {
+    .c create polygon {*}$poly -fill \#cccc00 -outline {}
+}
+
+puts "==== poly1 entry/exit  ===="
+foreach v [$poly1 get_vertices] {
+    puts "INTERSECTION: $poly1: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+}
+puts "==== poly2 entry/exit  ===="
+foreach v [$poly2 get_vertices] {
+    puts "INTERSECTION: $poly2: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+}
+
+#############################
+# Clip2 - mark entry/exits
+#############################
+if {0} {
+puts ""
+puts "Entries/exits"
+set polycoords1 {100 100 100 300 200 300 200 200 300 200 300 100}
+set polycoords2 {80 100 80 200 220 200 220 100}
+
+set polycoords3 {}
+foreach {x y} $polycoords1 {
+    lappend polycoords3 [expr $x + 0]
+    lappend polycoords3 [expr $y + 0]
+}
+set polycoords4 {}
+foreach {x y} $polycoords2 {
+    lappend polycoords4 [expr $x + 0]
+    lappend polycoords4 [expr $y + 0]
+}
+
+
+set poly1 [ghclip::polygon create $polycoords3]
+set poly2 [ghclip::polygon create $polycoords4]
+
+draw_poly .c [$poly1 get_poly] \#0000ff
+draw_poly .c [$poly2 get_poly] \#ff0000 +
+    
+# Set intersections
+ghclip::create_intersections $poly1 $poly2
+
+puts "==== poly1 intersection ===="
+foreach v [$poly1 get_vertices] {
+    puts "INTERSECTION: $poly1: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+}
+puts "==== poly2 intersection ===="
+foreach v [$poly2 get_vertices] {
+    puts "INTERSECTION: $poly2: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+}
+
+
+# Re-use poly1/2 from above
+set rpolies [ghclip::clip $poly1 $poly2]
+
+foreach poly $rpolies {
+    .c create polygon {*}$poly -fill \#cccc00 -outline {}
+}
+
+puts "==== poly1 entry/exit  ===="
+foreach v [$poly1 get_vertices] {
+    puts "INTERSECTION: $poly1: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+}
+puts "==== poly2 entry/exit  ===="
+foreach v [$poly2 get_vertices] {
+    puts "INTERSECTION: $poly2: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+}
+}

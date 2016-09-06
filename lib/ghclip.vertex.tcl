@@ -4,6 +4,7 @@ package provide ghclip::vertex 1.0
 namespace eval ghclip::vertex {
     namespace export create
     namespace export insert_after
+    namespace export insert_between
 
     variable counter 0 
 }
@@ -44,6 +45,8 @@ proc ghclip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
         variable is_intersection 0
         # entry = 0, exit = 1
         variable entry -1
+        variable alpha 0.0
+        variable visited 0
 
         proc setc {X Y} {
             variable x
@@ -124,6 +127,33 @@ proc ghclip::vertex::insert_after {x y first} {
     set new [create $x $y $first $second]
     $first set_next $new
     $second set_prev $new
+    return $new
+}
+
+# first and last are non-intersection vertices, but may
+# have one or more pre-existing insertion vertices between
+# them
+proc ghclip::vertex::insert_between {x y alpha first last} {
+    puts "DEBUG: Inserting new vertex between $first and $last with alpha $alpha"
+    # Find place to insert
+    set v $first
+    while {$v ne $last && [set ${v}::alpha] < $alpha} {
+        set v [$v get_next]
+    }
+
+    puts "DEBUG: Inserting before $v ([$v get_is_intersection], [set ${v}::alpha])"
+
+    # Create new vertex
+    set new [create $x $y [$v get_prev] $v]
+    set ${new}::alpha $alpha
+    
+    # Update adjacent vertices
+    puts "DEBUG: $v get_prev (b): [$v get_prev]"
+    $v set_prev $new
+    puts "DEBUG: $v get_prev (a): [$v get_prev]"
+    [$new get_prev] set_next $new
+
+    puts "DEBUG: Returning new vertex: $new"
     return $new
 }
 

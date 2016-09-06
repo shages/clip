@@ -12,7 +12,7 @@ namespace eval ghclip::polygon {
 proc ghclip::polygon::create {poly} {
     variable counter
     set name P_${counter}
-
+    puts "INFO: Creating polygon: $name"
     namespace eval $name {
         namespace export create
         #namespace export set_poly
@@ -20,12 +20,30 @@ proc ghclip::polygon::create {poly} {
         namespace export get_start
         namespace export get_vertices
         namespace export encloses
+        namespace export get_unvisited_intersection
         # "Starting" vertex of the polygon
         variable start_vertex
 
         proc get_start {} {
             variable start_vertex
             return $start_vertex
+        }
+
+        proc get_unvisited_intersection {} {
+            variable start_vertex
+
+            if {[$start_vertex get_is_intersection] && [set ${start_vertex}::visited] == 0} {
+                return $start_vertex
+            } else {
+                set curr [$start_vertex get_next]
+                while {$curr ne $start_vertex} {
+                    if {[$curr get_is_intersection] && [set ${curr}::visited] == 0} {
+                        break
+                    }
+                    set curr [$curr get_next]
+                }
+            }
+            return $curr
         }
 
         proc create {poly} {

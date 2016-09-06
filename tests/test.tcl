@@ -48,10 +48,10 @@ set l2 [list [ghclip::vertex::create 220 130] [ghclip::vertex::create 400 75]]
 .c create line {*}[concat [[lindex $l2 0] getc] [[lindex $l2 1] getc]] -width 3 -fill \#0000ff
 
 # Intersect them
-set point [ghclip::intersect \
+set point [lindex [ghclip::intersect \
 [list {*}[[lindex $l1 0] getc] {*}[[lindex $l1 1] getc]] \
 [list {*}[[lindex $l2 0] getc] {*}[[lindex $l2 1] getc]] \
-]
+] 0]
 if {$point ne ""} {
     puts "INFO: Intersection at: $point"
     .c create text {*}$point -text "intersection"
