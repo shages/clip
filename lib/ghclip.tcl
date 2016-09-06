@@ -72,34 +72,38 @@ proc ghclip::create_intersections {poly1 poly2} {
     while {$dof1 || $prev1 ne $start1} {
         set line1 [list $prev1 $current1]
 
-        set start2 [$poly2 get_start]
-        set prev2 $start2
-        set current2 [$start2 get_next]
-        set dof2 1
-        while {$dof2 || $prev2 ne $start2} {
-            set line2 [list $prev2 $current2]
-            puts "DEBUG: LINE1: $line1"
-            puts "DEBUG: LINE1: $line2"
-            # Check lines for intersection
-            set inters [ghclip::intersect \
-            [list {*}[[lindex $line1 0] getc] {*}[[lindex $line1 1] getc]] \
-            [list {*}[[lindex $line2 0] getc] {*}[[lindex $line2 1] getc]] \
-            ]
-            if {$inters ne ""} {
-                puts "FOUND INTERSECTION at: $inters"
-                # insert them
-                set new1 [ghclip::vertex::insert_after {*}$inters $prev1]
-                set new2 [ghclip::vertex::insert_after {*}$inters $prev2]
-                # Set neighbors
-                $new1 set_neighbor $new2
-                $new2 set_neighbor $new1
-                # Set intersection
-                $new1 set_is_intersection 1
-                $new2 set_is_intersection 1
+        if {[$prev1 get_is_intersection] == 0} {
+            set start2 [$poly2 get_start]
+            set prev2 $start2
+            set current2 [$start2 get_next]
+            set dof2 1
+            while {$dof2 || $prev2 ne $start2} {
+                if {[$prev2 get_is_intersection] == 0} {
+                    set line2 [list $prev2 $current2]
+                    puts "DEBUG: LINE1: $line1"
+                    puts "DEBUG: LINE2: $line2"
+                    # Check lines for intersection
+                    set inters [ghclip::intersect \
+                    [list {*}[[lindex $line1 0] getc] {*}[[lindex $line1 1] getc]] \
+                    [list {*}[[lindex $line2 0] getc] {*}[[lindex $line2 1] getc]] \
+                    ]
+                    if {$inters ne ""} {
+                        puts "FOUND INTERSECTION at: $inters"
+                        # insert them
+                        set new1 [ghclip::vertex::insert_after {*}$inters $prev1]
+                        set new2 [ghclip::vertex::insert_after {*}$inters $prev2]
+                        # Set neighbors
+                        $new1 set_neighbor $new2
+                        $new2 set_neighbor $new1
+                        # Set intersection
+                        $new1 set_is_intersection 1
+                        $new2 set_is_intersection 1
+                    }
+                }
+                set prev2 $current2
+                set current2 [$current2 get_next]
+                set dof2 0
             }
-            set prev2 $current2
-            set current2 [$current2 get_next]
-            set dof2 0
         }
 
         set prev1 $current1
@@ -107,4 +111,49 @@ proc ghclip::create_intersections {poly1 poly2} {
         set dof1 0
     }
 }
+
+proc ghclip::clip {poly1 poly2} {
+
+    # Mark entries/exits
+    # start at the startpoint and figure out if you're inside or outside
+    # poly1
+    set start [$poly1 get_start]
+    if {[$poly2 encloses {*}[$start getc]] != 0} {
+        # inside -> next intersection will be exit
+        set entry 1
+    } else {
+        # outside
+        set entry 0
+    }
+    set current [$start get_next]
+    # skip first since it can't be an intersection?
+    while {$current ne $start} {
+        if {[$current get_is_intersection]} {
+            # if an intersection point, record entry/exit
+            $current set_entry $entry
+            set entry [expr {$entry ? 0 : 1}] ; #toggle
+        }
+        set current [$current get_next]
+    }
+    # poly2
+    set start [$poly2 get_start]
+    if {[$poly1 encloses {*}[$start getc]] != 0} {
+        # inside -> next intersection will be exit
+        set entry 1
+    } else {
+        # outside
+        set entry 0
+    }
+    set current [$start get_next]
+    # skip first since it can't be an intersection?
+    while {$current ne $start} {
+        if {[$current get_is_intersection]} {
+            # if an intersection point, record entry/exit
+            $current set_entry $entry
+            set entry [expr {$entry ? 0 : 1}] ; #toggle
+        }
+        set current [$current get_next]
+    }
+}
+
 

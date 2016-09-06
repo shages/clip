@@ -18,10 +18,10 @@ proc ghclip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
     #     Sets the coordinate for the vertex. Defaults to (0, 0) if not specified.
     #   get
     #     Returns the coordinate as a 2-item list
-    puts "INFO: Creating vertex with coordinates: ($x, $y)"
     variable counter
 
     set name V_${counter}
+    puts "INFO: Creating vertex $name with coordinates: ($x, $y)"
     namespace eval $name {
         namespace export setc
         namespace export getc
@@ -33,6 +33,8 @@ proc ghclip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
         namespace export get_neighbor
         namespace export set_is_intersection
         namespace export get_is_intersection
+        namespace export set_entry
+        namespace export get_entry
 
         variable x 0
         variable y 0
@@ -40,6 +42,8 @@ proc ghclip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
         variable prev "null"
         variable neighbor "null"
         variable is_intersection 0
+        # entry = 0, exit = 1
+        variable entry -1
 
         proc setc {X Y} {
             variable x
@@ -92,6 +96,16 @@ proc ghclip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
         proc get_is_intersection {} {
             variable is_intersection
             return $is_intersection
+        }
+
+        proc set_entry {Entry} {
+            variable entry
+            set entry $Entry
+        }
+
+        proc get_entry {} {
+            variable entry
+            return $entry
         }
         
         namespace ensemble create
