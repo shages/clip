@@ -7,7 +7,7 @@ package require ghclip
 # setup canvas
 grid [canvas .c -width 600 -height 600 -background \#ffffff]
 
-# Draw poly with points 
+# Draw poly with points
 proc draw_poly {canv poly {color \#000000} {dir "-"} {marker_size 4}} {
     $canv create polygon {*}$poly -outline $color -fill {} -width 3
     set prev ""
@@ -46,7 +46,7 @@ set poly2 [ghclip::polygon create $polycoords4]
 
 draw_poly .c [$poly1 get_poly] \#0000ff
 draw_poly .c [$poly2 get_poly] \#ff0000 +
-    
+
 # Set intersections
 ghclip::create_intersections $poly1 $poly2
 
@@ -103,7 +103,7 @@ set poly2 [ghclip::polygon create $polycoords4]
 
 draw_poly .c [$poly1 get_poly] \#0000ff
 draw_poly .c [$poly2 get_poly] \#ff0000 +
-    
+
 # Set intersections
 ghclip::create_intersections $poly1 $poly2
 
@@ -159,7 +159,7 @@ set poly2 [ghclip::polygon create $polycoords4]
 
 draw_poly .c [$poly1 get_poly] \#0000ff
 draw_poly .c [$poly2 get_poly] \#ff0000 +
-    
+
 # Set intersections
 ghclip::create_intersections $poly1 $poly2
 
@@ -188,4 +188,51 @@ puts "==== poly2 entry/exit  ===="
 foreach v [$poly2 get_vertices] {
     puts "INTERSECTION: $poly2: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
 }
+}
+#############################
+# Clip3 - box and diamond
+#############################
+set polycoords1 {100 300 100 350 150 350 150 300}
+set polycoords2 {90  325 125 360 160 325 125 290}
+
+set poly1 [ghclip::polygon create $polycoords1]
+set poly2 [ghclip::polygon create $polycoords2]
+
+draw_poly .c [$poly1 get_poly] \#0000ff - 0
+draw_poly .c [$poly2 get_poly] \#ff0000 + 0
+
+# Set intersections
+ghclip::create_intersections $poly1 $poly2
+
+# Re-use poly1/2 from above
+set rpolies [ghclip::clip $poly1 $poly2]
+
+foreach poly $rpolies {
+    .c create polygon {*}$poly -fill \#cccc00 -outline {}
+}
+
+#############################
+# Clip4 - self-intersection
+#############################
+set polycoords1 {300 100 500 100 500 250 400 250 400 150 450 150 450 200 375 200 375 150 325 150 325 200}
+set polycoords1 {300 100 500 100 500 250 400 250 400 150 350 150 350 200 450 200 450 225 425 225 300 225}
+
+set polycoords1 {300 100 500 100 500 250 400 250 400 150 450 150 450 200 300 200}
+set polycoords2 {280 120 520 120 520 240 280 240}
+set polycoords1 {300 300 500 300 500 150 350 150 350 200 450 200 450 250 400 250 400 100 300 100}
+
+set poly1 [ghclip::polygon create $polycoords1]
+set poly2 [ghclip::polygon create $polycoords2]
+
+draw_poly .c [$poly1 get_poly] \#0000ff - 0
+draw_poly .c [$poly2 get_poly] \#ff0000 + 0
+
+# Set intersections
+ghclip::create_intersections $poly1 $poly2
+
+# Re-use poly1/2 from above
+set rpolies [ghclip::clip $poly1 $poly2]
+
+foreach poly $rpolies {
+    .c create polygon {*}$poly -fill \#cccc00 -outline {}
 }
