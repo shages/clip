@@ -6,14 +6,14 @@ namespace eval ghclip::vertex {
     namespace export insert_after
     namespace export insert_between
 
-    variable counter 0 
+    variable counter 0
 }
 
 
 proc ghclip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
     # Create new vertex as a namespace with ensemle sub commands
     # Namespaces are tracked with $ghclip::vertex::counter
-    # 
+    #
     # Sub commands:
     #   set -- x y
     #     Sets the coordinate for the vertex. Defaults to (0, 0) if not specified.
@@ -60,7 +60,7 @@ proc ghclip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
             variable y
             return [list $x $y]
         }
-        
+
         proc set_prev {Prev} {
             variable prev
             set prev $Prev
@@ -110,7 +110,7 @@ proc ghclip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
             variable entry
             return $entry
         }
-        
+
         namespace ensemble create
     }
 
@@ -146,7 +146,7 @@ proc ghclip::vertex::insert_between {x y alpha first last} {
     # Create new vertex
     set new [create $x $y [$v get_prev] $v]
     set ${new}::alpha $alpha
-    
+
     # Update adjacent vertices
     puts "DEBUG: $v get_prev (b): [$v get_prev]"
     $v set_prev $new
@@ -156,5 +156,3 @@ proc ghclip::vertex::insert_between {x y alpha first last} {
     puts "DEBUG: Returning new vertex: $new"
     return $new
 }
-
-
