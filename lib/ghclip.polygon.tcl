@@ -12,7 +12,7 @@ namespace eval ghclip::polygon {
 proc ghclip::polygon::create {poly} {
     variable counter
     set name P_${counter}
-    puts "INFO: Creating polygon: $name"
+    #puts "DEBUG: Creating polygon: $name"
     namespace eval $name {
         namespace export create
         #namespace export set_poly
@@ -97,7 +97,7 @@ proc ghclip::polygon::create {poly} {
         }
 
         # Test if point is inside this polygon
-        # Based off of algorithm here: 
+        # Based off of algorithm here:
         #   http://geomalgorithms.com/a03-_inclusion.html
         proc encloses {x y} {
             variable start_vertex
@@ -155,5 +155,3 @@ proc ghclip::polygon::create {poly} {
     set full_name "ghclip::polygon::$name"
     return $full_name
 }
-
-
