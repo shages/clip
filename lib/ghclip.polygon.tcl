@@ -143,7 +143,7 @@ proc ghclip::polygon::create {poly} {
                 set prev $current
                 set current [$current get_next]
             }
-            return $wn
+            return [expr {abs($wn)}]
         }
 
         namespace ensemble create
