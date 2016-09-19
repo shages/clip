@@ -188,6 +188,13 @@ proc ghclip::clip {p1 p2 {dir 0}} {
         set do 0
     }
 
+    if {$dir == 2} {
+        set dirs {1 0}
+    } else {
+        set dirs [list $dir $dir]
+    }
+    set dindex 0
+
     set polies {}
     set inpoly 0
     while {[llength $unvisited]} {
@@ -205,7 +212,7 @@ proc ghclip::clip {p1 p2 {dir 0}} {
             set unvisited [lreplace $unvisited [lsearch $unvisited $v] [lsearch $unvisited $v]]
             #puts "DEBUG: Unvisited: $unvisited"
 
-            if {[set ${v}::entry] == $dir || $dir == 2} {
+            if {[set ${v}::entry] == [lindex $dirs $dindex]} {
                 # Go forward to next intersection
                 set do1 1
                 while {$do1 || [$v get_is_intersection] == 0} {
@@ -228,6 +235,8 @@ proc ghclip::clip {p1 p2 {dir 0}} {
             }
             # swap
             set v [$v get_neighbor]
+            # toggle dir index
+            set dindex [expr $dindex == 1 ? 0 : 1]
             set do 0
         }
         lappend polies $poly
