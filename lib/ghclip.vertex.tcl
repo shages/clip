@@ -126,7 +126,9 @@ proc ghclip::vertex::insert_after {x y first} {
     set second [$first get_next]
     set new [create $x $y $first $second]
     $first set_next $new
-    $second set_prev $new
+    if {$second ne "null"} {
+        $second set_prev $new
+    }
     return $new
 }
 
