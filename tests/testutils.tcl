@@ -16,7 +16,7 @@ proc _summarize {} {
     puts "## PASS"
   }
 
-  set pass_rate [expr {1 - $___test::total_errors/$___test::total_tests}]
+  set pass_rate [expr {100 - 100.0*$___test::total_errors/$___test::total_tests}]
   puts "######################"
   puts "Summary:"
   puts " Total tests: $___test::total_tests"
@@ -48,7 +48,7 @@ proc _suite {name tests} {
   puts "Summary:"
   puts " Total tests: $count"
   puts " Failed tests: $errcount"
-  puts " Pass rate: [format {%.1f%%} [expr {100*(1-$errcount/$count)}]]"
+  puts " Pass rate: [format {%.1f%%} [expr {100 - 100.0*$errcount/$count}]]"
   puts ""
   return $errcount
 }

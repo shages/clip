@@ -11,18 +11,17 @@ _init
 _suite "lshift" {
   {
     set var {}
-    catch {[lshift var]} msg err
+    catch {[ghclip::lshift var]} msg err
     _assert_eq [dict get $err -errorstack INNER returnStk] Empty
   }
   {
     set var {0}
-    #expr {[lshift var] == 0 && $var == {}}
-    _assert_eq [lshift var] 0
+    _assert_eq [ghclip::lshift var] 0
     _assert_eq $var {}
   }
   {
     set var {0 1 2}
-    _assert_eq [lshift var] 0
+    _assert_eq [ghclip::lshift var] 0
     _assert_eq $var {1 2}
   }
 }
