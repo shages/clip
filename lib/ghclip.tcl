@@ -282,7 +282,6 @@ proc ghclip::lshift {listVar} {
 
 # Translates and executes the desired operation
 proc ghclip::create_clip2 {op p1 p2} {
-  puts "DEBUG: OP: $op"
   switch -exact -- $op {
     AND     {return [clip $p1 $p2 0]}
     OR      {return [clip $p1 $p2 1]}

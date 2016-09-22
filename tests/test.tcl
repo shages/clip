@@ -1,7 +1,7 @@
 #!/usr/bin/env tclsh
 package require Tk
 
-lappend auto_path [pwd]
+lappend auto_path [file normalize [file join [pwd] ..]]
 package require ghclip
 
 # setup canvas
