@@ -7,24 +7,8 @@ package require ghclip
 
 source ./testutils.tcl
 
-set poly1 {
-   50 150
-  150 150
-  150  75
-   75  75
-   75 100
-  125 100
-  125 125
-  100 125
-  100  50
-   50  50
-}
-set poly2 {
-   40  60
-  160  60
-  160 120
-   40 120
-}
+set poly1 {50 50 50 150 150 150 150 50}
+set poly2 {50 50 50 150 150 150}
 
 _clip_test 0 0 {}       [list $poly1 $poly2]
 _clip_test 0 1 {OR}     [list $poly1 $poly2]
