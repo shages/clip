@@ -201,7 +201,7 @@ proc ghclip::clip {p1 p2 {dir 0}} {
         # Start traversing first unvisited intersection in poly1
         set v [$poly1 get_unvisited_intersection]
         set poly {}
-        lappend poly [ghclip::vertex::create {*}[$v getc]]
+        lappend poly [ghclip::vertex create {*}[$v getc]]
         set do 1
         #puts "DEBUG: Starting new poly on $v"
         #puts "DEBUG: Unvisited: $unvisited"
@@ -219,7 +219,7 @@ proc ghclip::clip {p1 p2 {dir 0}} {
                     set v [$v get_next]
                     #puts "DEBUG: Looping forward: $v -> [$v get_next]"
                     set unvisited [lreplace $unvisited [lsearch $unvisited $v] [lsearch $unvisited $v]]
-                    lappend poly [ghclip::vertex::create {*}[$v getc]]
+                    lappend poly [ghclip::vertex create {*}[$v getc]]
                     set do1 0
                 }
             } else {
@@ -229,7 +229,7 @@ proc ghclip::clip {p1 p2 {dir 0}} {
                     #puts "DEBUG: Looping backward: $v -> [$v get_prev]"
                     set v [$v get_prev]
                     set unvisited [lreplace $unvisited [lsearch $unvisited $v] [lsearch $unvisited $v]]
-                    lappend poly [ghclip::vertex::create {*}[$v getc]]
+                    lappend poly [ghclip::vertex create {*}[$v getc]]
                     set do1 0
                 }
             }

@@ -7,6 +7,8 @@ namespace eval ghclip::vertex {
     namespace export insert_between
 
     variable counter 0
+
+    namespace ensemble create
 }
 
 

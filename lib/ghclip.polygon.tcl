@@ -56,10 +56,10 @@ proc ghclip::polygon::create {poly} {
             set count 0
             foreach {x y} $poly {
                 if {$count > 0} {
-                    set new [ghclip::vertex::create $x $y $prev]
+                    set new [ghclip::vertex create $x $y $prev]
                     $prev set_next $new
                 } else {
-                    set new [ghclip::vertex::create $x $y]
+                    set new [ghclip::vertex create $x $y]
                     set start_vertex $new
                 }
                 set prev $new
