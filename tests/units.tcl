@@ -28,15 +28,6 @@ _suite "lshift" {
     }
 }
 
-# Example assertion error
-#_suite "lshift2" {
-#  {
-#    set var {0 0}
-#    lshift var
-#    _assert_eq $var {0 0}
-#  }
-#}
-
 _suite "vertex" {
     {
         set v1 [ghclip::vertex::create 40 10]
@@ -125,25 +116,5 @@ _suite "poly" {
         _assert_eq [$pobj encloses 225 225] 0
     }
 }
-
-
-## elaborate_expression - deprecated
-#_suite "elaborate_expression" {
-#  {
-#    _assert_eq [elaborate_expression {A AND B}] {A AND B}
-#  }
-#  {
-#    _assert_eq [elaborate_expression {A XOR B}] {A XOR B}
-#  }
-#  {
-#    _assert_eq [elaborate_expression {A OR B}] {A OR B}
-#  }
-#  {
-#    _assert_eq [elaborate_expression {A OR B AND C XOR A}] {A OR B AND C XOR A}
-#  }
-#  {
-#    _assert_eq [elaborate_expression {A NOT B}] {A XOR B AND A}
-#  }
-#}
 
 _summarize
