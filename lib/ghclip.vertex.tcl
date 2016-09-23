@@ -18,7 +18,7 @@ proc ghclip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
     #
     # Sub commands:
     #   set -- x y
-    #     Sets the coordinate for the vertex. Defaults to (0, 0) if not specified.
+    #     Sets the coord for the vertex. Defaults to (0, 0) if not specified.
     #   get
     #     Returns the coordinate as a 2-item list
 

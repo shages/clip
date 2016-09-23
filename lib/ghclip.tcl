@@ -113,7 +113,7 @@ proc ghclip::create_intersections {poly1 poly2} {
     }
 }
 
-proc ghclip::clip {p1 p2 {dir 0}} {
+proc ghclip::clip {p1 p2 {dirs {0 0}}} {
     # (Phase 0) - create polygon objects
     set poly1 [polygon create $p1]
     set poly2 [polygon create $p2]
@@ -188,17 +188,7 @@ proc ghclip::clip {p1 p2 {dir 0}} {
         set do 0
     }
 
-    if {$dir == 2} {
-        # XOR
-        set dirs {0 1}
-    } elseif {$dir == 3} {
-        # NOT
-        set dirs {1 0}
-    } else {
-        set dirs [list $dir $dir]
-    }
     set dindex 0
-
     set polies {}
     set inpoly 0
     while {[llength $unvisited]} {
@@ -287,11 +277,11 @@ proc ghclip::lshift {listVar} {
 # Translates and executes the desired operation
 proc ghclip::create_clip2 {op p1 p2} {
   switch -exact -- $op {
-    AND     {return [clip $p1 $p2 0]}
-    OR      {return [clip $p1 $p2 1]}
-    XOR     {return [clip $p1 $p2 2]}
+    AND     {return [clip $p1 $p2 {0 0}]}
+    OR      {return [clip $p1 $p2 {1 1}]}
+    XOR     {return [clip $p1 $p2 {0 1}]}
     #NOT  {return [create_clip AND [create_clip XOR $p1 $p2] $p2]}
-    NOT  {return [clip $p1 $p2 3]}
+    NOT  {return [clip $p1 $p2 {1 0}]}
     default {
       error "Invalid operator in the expression:\n  $p1\n  $op\n  $p2"
     }
