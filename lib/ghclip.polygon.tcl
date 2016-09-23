@@ -136,7 +136,7 @@ proc ghclip::polygon::create {poly} {
                         # downward crossing
                         if {[is_left [$prev getc] [$current getc] [list $x $y]] < 0} {
                             # valid down intersect
-                            set wn [expr $wn - 1]
+                            set wn [expr {$wn - 1}]
                         }
                     }
                 }

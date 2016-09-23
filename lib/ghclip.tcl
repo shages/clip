@@ -55,7 +55,7 @@ proc ghclip::intersect {s c} {
     #puts "DEBUG: u: $u"
 
     # Check if lines intersect
-    if {![expr {(0.0 <= $t) && ($t <= 1.0) && (0.0 <= $u) && ($u <= 1.0)}]} {
+    if {!((0.0 <= $t) && ($t <= 1.0) && (0.0 <= $u) && ($u <= 1.0))} {
         #puts "DEBUG: Lines don't intersect"
         return
     }
@@ -236,7 +236,7 @@ proc ghclip::clip {p1 p2 {dir 0}} {
             # swap
             set v [$v get_neighbor]
             # toggle dir index
-            set dindex [expr $dindex == 1 ? 0 : 1]
+            set dindex [expr {$dindex == 1 ? 0 : 1}]
             set do 0
         }
         lappend polies $poly
@@ -320,7 +320,7 @@ proc ghclip::create_clip {op p1 p2} {
 
 proc ghclip::clip_exp {args} {
   # Check args length
-  if {[expr {([llength $args] - 1) % 2}] != 0} {
+  if {([llength $args] - 1) % 2 != 0} {
     error "Argument list is of wrong length"
   }
 
