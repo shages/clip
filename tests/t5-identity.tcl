@@ -14,5 +14,5 @@ _clip_test 0 0 {}       [list $poly1 $poly2]
 _clip_test 0 1 {OR}     [list $poly1 $poly2]
 _clip_test 0 2 {AND}    [list $poly1 $poly2]
 _clip_test 0 3 {XOR}    [list $poly1 $poly2]
-_clip_test 0 4 {ANDNOT} [list $poly1 $poly2]
+_clip_test 0 4 {NOT} [list $poly1 $poly2]
 

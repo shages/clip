@@ -189,6 +189,10 @@ proc ghclip::clip {p1 p2 {dir 0}} {
     }
 
     if {$dir == 2} {
+        # XOR
+        set dirs {0 1}
+    } elseif {$dir == 3} {
+        # NOT
         set dirs {1 0}
     } else {
         set dirs [list $dir $dir]
@@ -286,7 +290,8 @@ proc ghclip::create_clip2 {op p1 p2} {
     AND     {return [clip $p1 $p2 0]}
     OR      {return [clip $p1 $p2 1]}
     XOR     {return [clip $p1 $p2 2]}
-    ANDNOT  {return [create_clip AND [create_clip XOR $p1 $p2] $p2]}
+    #NOT  {return [create_clip AND [create_clip XOR $p1 $p2] $p2]}
+    NOT  {return [clip $p1 $p2 3]}
     default {
       error "Invalid operator in the expression:\n  $p1\n  $op\n  $p2"
     }
