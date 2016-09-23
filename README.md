@@ -1,1 +1,1 @@
-# clip
+# ghclip
