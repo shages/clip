@@ -1,9 +1,11 @@
 #!/usr/bin/env tclsh
 
-lappend auto_path [file normalize [file join [pwd] ..]]
+set dir [file dirname [info script]]
+
+lappend auto_path [file normalize [file join $dir ..]]
 package require ghclip
 
-source ./testutils.tcl
+source [file join $dir testutils.tcl]
 
 _init
 
@@ -38,50 +40,50 @@ _suite "lshift" {
 _suite "vertex" {
     {
         set v1 [ghclip::vertex::create 40 10]
-        _assert_eq [$v1 getc] {40 10}
+        _assert_eq [$v1 getp coord] {40 10}
     }
     {
         set v1 [ghclip::vertex::create 20 30]
-        _assert_eq [$v1 getc] {20 30}
+        _assert_eq [$v1 getp coord] {20 30}
     }
     {
         set v1 [ghclip::vertex::create 10.0 10.0]
-        _assert_eq [$v1 getc] {10.0 10.0}
+        _assert_eq [$v1 getp coord] {10.0 10.0}
     }
     {
         set v1 [ghclip::vertex::create ]
-        _assert_eq [$v1 getc] {0 0}
+        _assert_eq [$v1 getp coord] {0 0}
     }
     {
         set v1 [ghclip::vertex::create 0 0]
-        _assert_eq [$v1 get_next] null
-        _assert_eq [$v1 get_prev] null
-        _assert_eq [$v1 get_neighbor] null
-        _assert_eq [$v1 get_is_intersection] 0
-        _assert_eq [$v1 get_entry] -1
+        _assert_eq [$v1 getp next] null
+        _assert_eq [$v1 getp prev] null
+        _assert_eq [$v1 getp neighbor] null
+        _assert_eq [$v1 getp is_intersection] 0
+        _assert_eq [$v1 getp entry] -1
     }
     {
         # Vertex insertion
         set v1 [ghclip::vertex::create 0 0]
         set v2 [ghclip::vertex::insert_after 10 10 $v1]
-        _assert_eq [$v1 get_next] $v2
-        _assert_eq [$v1 get_prev] null
-        _assert_eq [$v2 get_prev] $v1
-        _assert_eq [$v2 get_next] null
+        _assert_eq [$v1 getp next] $v2
+        _assert_eq [$v1 getp prev] null
+        _assert_eq [$v2 getp prev] $v1
+        _assert_eq [$v2 getp next] null
     }
     {
         # Vertex insertion in between
         set v1 [ghclip::vertex::create 0 0]
         set v2 [ghclip::vertex::insert_after 10 10 $v1]
         set v3 [ghclip::vertex::insert_between 5 5 0.5 $v1 $v2]
-        _assert_eq [$v1 get_next] $v3
-        _assert_eq [$v1 get_prev] null
-        _assert_eq [$v2 get_prev] $v3
-        _assert_eq [$v2 get_next] null
-        _assert_eq [$v3 get_prev] $v1
-        _assert_eq [$v3 get_next] $v2
+        _assert_eq [$v1 getp next] $v3
+        _assert_eq [$v1 getp prev] null
+        _assert_eq [$v2 getp prev] $v3
+        _assert_eq [$v2 getp next] null
+        _assert_eq [$v3 getp prev] $v1
+        _assert_eq [$v3 getp next] $v2
         _assert_eq [set ${v3}::alpha] 0.5
-        _assert_eq [$v3 get_is_intersection] 0
+        _assert_eq [$v3 getp is_intersection] 0
     }
 }
 
@@ -90,9 +92,9 @@ _suite "poly" {
         set poly {200 200 250 200 250 250 200 250}
         set pobj [ghclip::polygon create $poly]
         _assert_eq [$pobj get_poly] $poly
-        _assert_eq [[$pobj get_start] getc] {200 200}
-        _assert_eq [[[$pobj get_start] get_next] getc] {250 200}
-        _assert_eq [[[$pobj get_start] get_prev] getc] {200 250}
+        _assert_eq [[$pobj get_start] getp coord] {200 200}
+        _assert_eq [[[$pobj get_start] getp next] getp coord] {250 200}
+        _assert_eq [[[$pobj get_start] getp prev] getp coord] {200 250}
         _assert_eq [llength [$pobj get_vertices]] 4
     }
     {
@@ -140,7 +142,7 @@ _suite "poly" {
 #    _assert_eq [elaborate_expression {A OR B AND C XOR A}] {A OR B AND C XOR A}
 #  }
 #  {
-#    _assert_eq [elaborate_expression {A ANDNOT B}] {A XOR B AND A}
+#    _assert_eq [elaborate_expression {A NOT B}] {A XOR B AND A}
 #  }
 #}
 

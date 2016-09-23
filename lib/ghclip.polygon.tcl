@@ -32,15 +32,15 @@ proc ghclip::polygon::create {poly} {
         proc get_unvisited_intersection {} {
             variable start_vertex
 
-            if {[$start_vertex get_is_intersection] && [set ${start_vertex}::visited] == 0} {
+            if {[$start_vertex getp is_intersection] && [set ${start_vertex}::visited] == 0} {
                 return $start_vertex
             } else {
-                set curr [$start_vertex get_next]
+                set curr [$start_vertex getp next]
                 while {$curr ne $start_vertex} {
-                    if {[$curr get_is_intersection] && [set ${curr}::visited] == 0} {
+                    if {[$curr getp is_intersection] && [set ${curr}::visited] == 0} {
                         break
                     }
-                    set curr [$curr get_next]
+                    set curr [$curr getp next]
                 }
             }
             return $curr
@@ -57,7 +57,7 @@ proc ghclip::polygon::create {poly} {
             foreach {x y} $poly {
                 if {$count > 0} {
                     set new [ghclip::vertex create $x $y $prev]
-                    $prev set_next $new
+                    $prev setp next $new
                 } else {
                     set new [ghclip::vertex create $x $y]
                     set start_vertex $new
@@ -67,8 +67,8 @@ proc ghclip::polygon::create {poly} {
             }
             # Fix startpoint/endpoint
             # Need to check these aren't the same point first
-            $start_vertex set_prev $new
-            $new set_next $start_vertex
+            $start_vertex setp prev $new
+            $new setp next $start_vertex
         }
 
         # Returns even-number list of coordinates in this polygon
@@ -76,13 +76,13 @@ proc ghclip::polygon::create {poly} {
             variable start_vertex
             set poly {}
             set polyv {}
-            lappend poly {*}[$start_vertex getc]
+            lappend poly {*}[$start_vertex getp coord]
             lappend polyv $start_vertex
-            set current [$start_vertex get_next]
+            set current [$start_vertex getp next]
             while {$current ne $start_vertex} {
-                lappend poly {*}[$current getc]
+                lappend poly {*}[$current getp coord]
                 lappend polyv $current
-                set current [$current get_next]
+                set current [$current getp next]
             }
             if {$vertices} {
                 return $polyv
@@ -116,32 +116,32 @@ proc ghclip::polygon::create {poly} {
 
             set wn 0                ; # winding number
             set prev $start_vertex
-            set current [$prev get_next]
+            set current [$prev getp next]
             set dof 1               ; # do while flag
             while {$dof || $prev ne $start_vertex} {
                 set dof 0
 
-                if {[lindex [$prev getc] 1] <= $y} {
+                if {[lindex [$prev getp coord] 1] <= $y} {
                     # start lower
-                    if {[lindex [$current getc] 1] > $y} {
+                    if {[lindex [$current getp coord] 1] > $y} {
                         # upward crossing
-                        if {[is_left [$prev getc] [$current getc] [list $x $y]] > 0} {
+                        if {[is_left [$prev getp coord] [$current getp coord] [list $x $y]] > 0} {
                             # valid up intersect
                             incr wn
                         }
                     }
                 } else {
                     # start higher
-                    if {[lindex [$current getc] 1] <= $y} {
+                    if {[lindex [$current getp coord] 1] <= $y} {
                         # downward crossing
-                        if {[is_left [$prev getc] [$current getc] [list $x $y]] < 0} {
+                        if {[is_left [$prev getp coord] [$current getp coord] [list $x $y]] < 0} {
                             # valid down intersect
                             set wn [expr {$wn - 1}]
                         }
                     }
                 }
                 set prev $current
-                set current [$current get_next]
+                set current [$current getp next]
             }
             return [expr {abs($wn)}]
         }

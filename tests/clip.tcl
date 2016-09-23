@@ -10,11 +10,11 @@ grid [canvas .c -width 600 -height 600 -background \#ffffff]
 # Draw poly with points
 proc draw_poly {canv poly {color \#000000} {dir "-"} {marker_size 4}} {
     $canv create polygon {*}$poly -outline $color -fill {} -width 3
-    set prev ""
+    setp prev ""
     foreach {x y} $poly {
         # Draw point
         $canv create line $x $y [expr $x + $marker_size] [expr $y $dir $marker_size] -width [expr $marker_size/2.0] -fill \#000000
-        set prev [list $x $y]
+        setp prev [list $x $y]
     }
 }
 
@@ -52,11 +52,11 @@ ghclip::create_intersections $poly1 $poly2
 
 puts "==== poly1 intersection ===="
 foreach v [$poly1 get_vertices] {
-    puts "INTERSECTION: $poly1: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+    puts "INTERSECTION: $poly1: $v:\t[$v getp coord]\t[$v getp is_intersection]\t[$v getp entry]"
 }
 puts "==== poly2 intersection ===="
 foreach v [$poly2 get_vertices] {
-    puts "INTERSECTION: $poly2: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+    puts "INTERSECTION: $poly2: $v:\t[$v getp coord]\t[$v getp is_intersection]\t[$v getp entry]"
 }
 
 
@@ -69,11 +69,11 @@ foreach poly $rpolies {
 
 puts "==== poly1 entry/exit  ===="
 foreach v [$poly1 get_vertices] {
-    puts "INTERSECTION: $poly1: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+    puts "INTERSECTION: $poly1: $v:\t[$v getp coord]\t[$v getp is_intersection]\t[$v getp entry]"
 }
 puts "==== poly2 entry/exit  ===="
 foreach v [$poly2 get_vertices] {
-    puts "INTERSECTION: $poly2: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+    puts "INTERSECTION: $poly2: $v:\t[$v getp coord]\t[$v getp is_intersection]\t[$v getp entry]"
 }
 
 
@@ -109,11 +109,11 @@ ghclip::create_intersections $poly1 $poly2
 
 puts "==== poly1 intersection ===="
 foreach v [$poly1 get_vertices] {
-    puts "INTERSECTION: $poly1: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+    puts "INTERSECTION: $poly1: $v:\t[$v getp coord]\t[$v getp is_intersection]\t[$v getp entry]"
 }
 puts "==== poly2 intersection ===="
 foreach v [$poly2 get_vertices] {
-    puts "INTERSECTION: $poly2: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+    puts "INTERSECTION: $poly2: $v:\t[$v getp coord]\t[$v getp is_intersection]\t[$v getp entry]"
 }
 
 
@@ -126,11 +126,11 @@ foreach poly $rpolies {
 
 puts "==== poly1 entry/exit  ===="
 foreach v [$poly1 get_vertices] {
-    puts "INTERSECTION: $poly1: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+    puts "INTERSECTION: $poly1: $v:\t[$v getp coord]\t[$v getp is_intersection]\t[$v getp entry]"
 }
 puts "==== poly2 entry/exit  ===="
 foreach v [$poly2 get_vertices] {
-    puts "INTERSECTION: $poly2: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+    puts "INTERSECTION: $poly2: $v:\t[$v getp coord]\t[$v getp is_intersection]\t[$v getp entry]"
 }
 
 #############################
@@ -165,11 +165,11 @@ ghclip::create_intersections $poly1 $poly2
 
 puts "==== poly1 intersection ===="
 foreach v [$poly1 get_vertices] {
-    puts "INTERSECTION: $poly1: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+    puts "INTERSECTION: $poly1: $v:\t[$v getp coord]\t[$v getp is_intersection]\t[$v getp entry]"
 }
 puts "==== poly2 intersection ===="
 foreach v [$poly2 get_vertices] {
-    puts "INTERSECTION: $poly2: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+    puts "INTERSECTION: $poly2: $v:\t[$v getp coord]\t[$v getp is_intersection]\t[$v getp entry]"
 }
 
 
@@ -182,11 +182,11 @@ foreach poly $rpolies {
 
 puts "==== poly1 entry/exit  ===="
 foreach v [$poly1 get_vertices] {
-    puts "INTERSECTION: $poly1: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+    puts "INTERSECTION: $poly1: $v:\t[$v getp coord]\t[$v getp is_intersection]\t[$v getp entry]"
 }
 puts "==== poly2 entry/exit  ===="
 foreach v [$poly2 get_vertices] {
-    puts "INTERSECTION: $poly2: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+    puts "INTERSECTION: $poly2: $v:\t[$v getp coord]\t[$v getp is_intersection]\t[$v getp entry]"
 }
 }
 #############################

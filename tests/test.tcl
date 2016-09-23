@@ -13,20 +13,20 @@ grid [canvas .c -width 600 -height 600 -background \#ffffff]
 set v1 [ghclip::vertex::create 40 10]
 set v2 [ghclip::vertex::create 20 30]
 set v3 [ghclip::vertex::create 50 50]
-puts "v1: [$v1 getc]"
-puts "v2: [$v2 getc]"
-puts "v3: [$v3 getc]"
-.c create line {*}[concat {0 0} [$v1 getc]] -width 1 -fill \#0000ff
-.c create line {*}[concat {0 0} [$v2 getc]] -width 1 -fill \#0000ff
-.c create line {*}[concat {0 0} [$v3 getc]] -width 1 -fill \#0000ff
+puts "v1: [$v1 getp coord]"
+puts "v2: [$v2 getp coord]"
+puts "v3: [$v3 getp coord]"
+.c create line {*}[concat {0 0} [$v1 getp coord]] -width 1 -fill \#0000ff
+.c create line {*}[concat {0 0} [$v2 getp coord]] -width 1 -fill \#0000ff
+.c create line {*}[concat {0 0} [$v3 getp coord]] -width 1 -fill \#0000ff
 
 #############################
 # Polygon creation
 #############################
 set poly [ghclip::polygon create {200 200 250 200 250 250 200 250}]
 foreach i {3 4 5 6} {
-    puts [ghclip::vertex::V_${i} get_prev]
-    puts [ghclip::vertex::V_${i} get_next]
+    puts [ghclip::vertex::V_${i} getp prev]
+    puts [ghclip::vertex::V_${i} getp next]
 }
 puts "INFO: Poly: [$poly get_poly]"
 .c create polygon {*}[$poly get_poly] -fill {} -outline \#bb00ff -fill {} -width 4
@@ -44,13 +44,13 @@ puts "AFTER:  [$poly get_poly]"
 # Create two lines
 set l1 [list [ghclip::vertex::create 200 50] [ghclip::vertex::create 300 160]]
 set l2 [list [ghclip::vertex::create 220 130] [ghclip::vertex::create 400 75]]
-.c create line {*}[concat [[lindex $l1 0] getc] [[lindex $l1 1] getc]] -width 3 -fill \#00ff00
-.c create line {*}[concat [[lindex $l2 0] getc] [[lindex $l2 1] getc]] -width 3 -fill \#0000ff
+.c create line {*}[concat [[lindex $l1 0] getp coord] [[lindex $l1 1] getp coord]] -width 3 -fill \#00ff00
+.c create line {*}[concat [[lindex $l2 0] getp coord] [[lindex $l2 1] getp coord]] -width 3 -fill \#0000ff
 
 # Intersect them
 set point [lindex [ghclip::intersect \
-[list {*}[[lindex $l1 0] getc] {*}[[lindex $l1 1] getc]] \
-[list {*}[[lindex $l2 0] getc] {*}[[lindex $l2 1] getc]] \
+[list {*}[[lindex $l1 0] getp coord] {*}[[lindex $l1 1] getp coord]] \
+[list {*}[[lindex $l2 0] getp coord] {*}[[lindex $l2 1] getp coord]] \
 ] 0]
 if {$point ne ""} {
     puts "INFO: Intersection at: $point"
@@ -65,11 +65,11 @@ if {$point ne ""} {
 # Draw poly with points 
 proc draw_poly {canv poly {color \#000000} {dir "-"} {marker_size 4}} {
     $canv create polygon {*}$poly -outline $color -fill {} -width 3
-    set prev ""
+    setp prev ""
     foreach {x y} $poly {
         # Draw point
         $canv create line $x $y [expr $x + $marker_size] [expr $y $dir $marker_size] -width [expr $marker_size/2.0] -fill \#000000
-        set prev [list $x $y]
+        setp prev [list $x $y]
     }
 }
 
@@ -98,12 +98,12 @@ draw_poly .c [$poly2 get_poly] \#ff0000 +
 
 puts "==== poly1 ===="
 foreach v [$poly1 get_vertices] {
-    puts "INTERSECTION: $poly1: $v: [$v get_is_intersection]"
+    puts "INTERSECTION: $poly1: $v: [$v getp is_intersection]"
 }
 
 puts "==== poly2 ===="
 foreach v [$poly2 get_vertices] {
-    puts "INTERSECTION: $poly2: $v: [$v get_is_intersection]"
+    puts "INTERSECTION: $poly2: $v: [$v getp is_intersection]"
 }
 
 set poly1 [ghclip::polygon create $polycoords3]
@@ -116,12 +116,12 @@ draw_poly .c [$poly2 get_poly] \#ff0000 +
 
 puts "==== poly1 ===="
 foreach v [$poly1 get_vertices] {
-    puts "INTERSECTION: $poly1: $v: [$v get_is_intersection]"
+    puts "INTERSECTION: $poly1: $v: [$v getp is_intersection]"
 }
 
 puts "==== poly2 ===="
 foreach v [$poly2 get_vertices] {
-    puts "INTERSECTION: $poly2: $v: [$v get_is_intersection]"
+    puts "INTERSECTION: $poly2: $v: [$v getp is_intersection]"
 }
 
 
@@ -188,11 +188,11 @@ ghclip::create_intersections $poly1 $poly2
 
 puts "==== poly1 intersection ===="
 foreach v [$poly1 get_vertices] {
-    puts "INTERSECTION: $poly1: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+    puts "INTERSECTION: $poly1: $v:\t[$v getp coord]\t[$v getp is_intersection]\t[$v getp entry]"
 }
 puts "==== poly2 intersection ===="
 foreach v [$poly2 get_vertices] {
-    puts "INTERSECTION: $poly2: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+    puts "INTERSECTION: $poly2: $v:\t[$v getp coord]\t[$v getp is_intersection]\t[$v getp entry]"
 }
 
 
@@ -201,11 +201,11 @@ ghclip::clip $poly1 $poly2
 
 puts "==== poly1 entry/exit  ===="
 foreach v [$poly1 get_vertices] {
-    puts "INTERSECTION: $poly1: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+    puts "INTERSECTION: $poly1: $v:\t[$v getp coord]\t[$v getp is_intersection]\t[$v getp entry]"
 }
 puts "==== poly2 entry/exit  ===="
 foreach v [$poly2 get_vertices] {
-    puts "INTERSECTION: $poly2: $v:\t[$v getc]\t[$v get_is_intersection]\t[$v get_entry]"
+    puts "INTERSECTION: $poly2: $v:\t[$v getp coord]\t[$v getp is_intersection]\t[$v getp entry]"
 }
 
 

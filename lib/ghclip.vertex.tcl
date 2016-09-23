@@ -6,9 +6,9 @@ namespace eval ghclip::vertex {
     namespace export insert_after
     namespace export insert_between
 
-    variable counter 0
-
     namespace ensemble create
+
+    variable counter 0
 }
 
 
@@ -21,26 +21,16 @@ proc ghclip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
     #     Sets the coordinate for the vertex. Defaults to (0, 0) if not specified.
     #   get
     #     Returns the coordinate as a 2-item list
+
     variable counter
 
     set name V_${counter}
-    #puts "DEBUG: Creating vertex $name with coordinates: ($x, $y)"
     namespace eval $name {
-        namespace export setc
-        namespace export getc
-        namespace export set_prev
-        namespace export set_next
-        namespace export get_prev
-        namespace export get_next
-        namespace export set_neighbor
-        namespace export get_neighbor
-        namespace export set_is_intersection
-        namespace export get_is_intersection
-        namespace export set_entry
-        namespace export get_entry
+        namespace export setp
+        namespace export getp
+        namespace ensemble create
 
-        variable x 0
-        variable y 0
+        variable coord {0 0}
         variable next "null"
         variable prev "null"
         variable neighbor "null"
@@ -50,113 +40,71 @@ proc ghclip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
         variable alpha 0.0
         variable visited 0
 
-        proc setc {X Y} {
-            variable x
-            variable y
-            set x $X
-            set y $Y
+        proc setp {prop value} {
+            # Set property value
+            variable $prop
+            if {[info exists $prop]} {
+                return [set $prop $value]
+            } else {
+                puts "ERROR: Property $prop doesn't exist yet. Can't set"
+            }
         }
 
-        proc getc {} {
-            variable x
-            variable y
-            return [list $x $y]
+        proc getp {prop} {
+            # Get property value
+            variable $prop
+            return [set $prop]
         }
-
-        proc set_prev {Prev} {
-            variable prev
-            set prev $Prev
-        }
-
-        proc set_next {Next} {
-            variable next
-            set next $Next
-        }
-
-        proc get_prev {} {
-            variable prev
-            return $prev
-        }
-
-        proc get_next {} {
-            variable next
-            return $next
-        }
-
-        proc set_neighbor {Neighbor} {
-            variable neighbor
-            set neighbor $Neighbor
-        }
-
-        proc get_neighbor {} {
-            variable neighbor
-            return $neighbor
-        }
-
-        proc set_is_intersection {I} {
-            variable is_intersection
-            set is_intersection $I
-        }
-
-        proc get_is_intersection {} {
-            variable is_intersection
-            return $is_intersection
-        }
-
-        proc set_entry {Entry} {
-            variable entry
-            set entry $Entry
-        }
-
-        proc get_entry {} {
-            variable entry
-            return $entry
-        }
-
-        namespace ensemble create
     }
 
-    $name setc $x $y
-    $name set_prev $prev
-    $name set_next $next
+    $name setp coord [list $x $y]
+    $name setp prev $prev
+    $name setp next $next
     incr counter
     return "::ghclip::vertex::$name"
 }
 
-# Inserts new vertex after the provided vertex
 proc ghclip::vertex::insert_after {x y first} {
-    set second [$first get_next]
+    # Insert new vertex after another and update prev/next pointers
+    #
+    # Args
+    # x         x coord
+    # y         y coord
+    # first     vertex to insert after
+
+    set second [$first getp next]
     set new [create $x $y $first $second]
-    $first set_next $new
+    $first setp next $new
     if {$second ne "null"} {
-        $second set_prev $new
+        $second setp prev $new
     }
     return $new
 }
 
-# first and last are non-intersection vertices, but may
-# have one or more pre-existing insertion vertices between
-# them
 proc ghclip::vertex::insert_between {x y alpha first last} {
-    #puts "DEBUG: Inserting new vertex between $first and $last with alpha $alpha"
+    # Insert new vertex between two vertices
+    #
+    # There may be other existing vertices between the specified first and
+    # last vertices. They should also be intersection vertices.
+    #
+    # Args:
+    # x         x coord
+    # y         y coord
+    # alpha     ratio of distance between first and last
+    # first     vertex to insert after
+    # last      vertex to insert before
+
     # Find place to insert
     set v $first
     while {$v ne $last && [set ${v}::alpha] < $alpha} {
-        set v [$v get_next]
+        set v [$v getp next]
     }
 
-    #puts "DEBUG: Inserting before $v ([$v get_is_intersection], [set ${v}::alpha])"
-
-    # Create new vertex
-    set new [create $x $y [$v get_prev] $v]
+    # Create new vertex, and then update adjacent vertices
+    set new [create $x $y [$v getp prev] $v]
     set ${new}::alpha $alpha
+    $v setp prev $new
+    [$new getp prev] setp next $new
 
-    # Update adjacent vertices
-    #puts "DEBUG: $v get_prev (b): [$v get_prev]"
-    $v set_prev $new
-    #puts "DEBUG: $v get_prev (a): [$v get_prev]"
-    [$new get_prev] set_next $new
-
-    #puts "DEBUG: Returning new vertex: $new"
     return $new
 }

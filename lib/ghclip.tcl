@@ -70,23 +70,23 @@ proc ghclip::intersect {s c} {
 proc ghclip::create_intersections {poly1 poly2} {
     set start1 [$poly1 get_start]
     set prev1 $start1
-    set current1 [$start1 get_next]
+    set current1 [$start1 getp next]
     set dof1 1
     while {$dof1 || $prev1 ne $start1} {
         set line1 [list $prev1 $current1]
 
-        if {[$prev1 get_is_intersection] == 0} {
+        if {[$prev1 getp is_intersection] == 0} {
             set start2 [$poly2 get_start]
             set prev2 $start2
-            set current2 [$start2 get_next]
+            set current2 [$start2 getp next]
             set dof2 1
             while {$dof2 || $prev2 ne $start2} {
-                if {[$prev2 get_is_intersection] == 0} {
+                if {[$prev2 getp is_intersection] == 0} {
                     set line2 [list $prev2 [get_next_non_intersection $prev2]]
                     # Check lines for intersection
                     set inters [ghclip::intersect \
-                    [list {*}[[lindex $line1 0] getc] {*}[[lindex $line1 1] getc]] \
-                    [list {*}[[lindex $line2 0] getc] {*}[[lindex $line2 1] getc]] \
+                    [list {*}[[lindex $line1 0] getp coord] {*}[[lindex $line1 1] getp coord]] \
+                    [list {*}[[lindex $line2 0] getp coord] {*}[[lindex $line2 1] getp coord]] \
                     ]
                     if {$inters ne ""} {
                         #puts "DEBUG: FOUND INTERSECTION at: $inters"
@@ -94,21 +94,21 @@ proc ghclip::create_intersections {poly1 poly2} {
                         set new1 [ghclip::vertex::insert_between {*}[lindex $inters 0] [lindex $inters 1 0] $prev1 [get_next_non_intersection $prev1]]
                         set new2 [ghclip::vertex::insert_between {*}[lindex $inters 0] [lindex $inters 1 1] $prev2 [get_next_non_intersection $prev2]]
                         # Set neighbors
-                        $new1 set_neighbor $new2
-                        $new2 set_neighbor $new1
+                        $new1 setp neighbor $new2
+                        $new2 setp neighbor $new1
                         # Set intersection
-                        $new1 set_is_intersection 1
-                        $new2 set_is_intersection 1
+                        $new1 setp is_intersection 1
+                        $new2 setp is_intersection 1
                     }
                 }
                 set prev2 $current2
-                set current2 [$current2 get_next]
+                set current2 [$current2 getp next]
                 set dof2 0
             }
         }
 
         set prev1 $current1
-        set current1 [$current1 get_next]
+        set current1 [$current1 getp next]
         set dof1 0
     }
 }
@@ -127,41 +127,41 @@ proc ghclip::clip {p1 p2 {dir 0}} {
     # start at the startpoint and figure out if you're inside or outside
     # poly1
     set start [$poly1 get_start]
-    if {[$poly2 encloses {*}[$start getc]] != 0} {
+    if {[$poly2 encloses {*}[$start getp coord]] != 0} {
         # inside -> next intersection will be exit
         set entry 1
     } else {
         # outside
         set entry 0
     }
-    set current [$start get_next]
+    set current [$start getp next]
     # skip first since it can't be an intersection?
     while {$current ne $start} {
-        if {[$current get_is_intersection]} {
+        if {[$current getp is_intersection]} {
             # if an intersection point, record entry/exit
-            $current set_entry $entry
+            $current setp entry $entry
             set entry [expr {$entry ? 0 : 1}] ; #toggle
         }
-        set current [$current get_next]
+        set current [$current getp next]
     }
     # poly2
     set start [$poly2 get_start]
-    if {[$poly1 encloses {*}[$start getc]] != 0} {
+    if {[$poly1 encloses {*}[$start getp coord]] != 0} {
         # inside -> next intersection will be exit
         set entry 1
     } else {
         # outside
         set entry 0
     }
-    set current [$start get_next]
+    set current [$start getp next]
     # skip first since it can't be an intersection?
     while {$current ne $start} {
-        if {[$current get_is_intersection]} {
+        if {[$current getp is_intersection]} {
             # if an intersection point, record entry/exit
-            $current set_entry $entry
+            $current setp entry $entry
             set entry [expr {$entry ? 0 : 1}] ; #toggle
         }
-        set current [$current get_next]
+        set current [$current getp next]
     }
 
     # Phase 3
@@ -171,20 +171,20 @@ proc ghclip::clip {p1 p2 {dir 0}} {
     set start $curr
     set do 1
     while {$do || $curr ne $start} {
-        if {[$curr get_is_intersection]} {
+        if {[$curr getp is_intersection]} {
             lappend unvisited $curr
         }
-        set curr [$curr get_next]
+        set curr [$curr getp next]
         set do 0
     }
     set curr [$poly2 get_start]
     set start $curr
     set do 1
     while {$do || $curr ne $start} {
-        if {[$curr get_is_intersection]} {
+        if {[$curr getp is_intersection]} {
             lappend unvisited $curr
         }
-        set curr [$curr get_next]
+        set curr [$curr getp next]
         set do 0
     }
 
@@ -205,40 +205,40 @@ proc ghclip::clip {p1 p2 {dir 0}} {
         # Start traversing first unvisited intersection in poly1
         set v [$poly1 get_unvisited_intersection]
         set poly {}
-        lappend poly [ghclip::vertex create {*}[$v getc]]
+        lappend poly [ghclip::vertex create {*}[$v getp coord]]
         set do 1
         #puts "DEBUG: Starting new poly on $v"
         #puts "DEBUG: Unvisited: $unvisited"
         while {$do || [set ${v}::visited] == 0} {
             # mark this and its neighbor as visited
             set ${v}::visited 1
-            set [$v get_neighbor]::visited 1
+            set [$v getp neighbor]::visited 1
             set unvisited [lreplace $unvisited [lsearch $unvisited $v] [lsearch $unvisited $v]]
             #puts "DEBUG: Unvisited: $unvisited"
 
             if {[set ${v}::entry] == [lindex $dirs $dindex]} {
                 # Go forward to next intersection
                 set do1 1
-                while {$do1 || [$v get_is_intersection] == 0} {
-                    set v [$v get_next]
-                    #puts "DEBUG: Looping forward: $v -> [$v get_next]"
+                while {$do1 || [$v getp is_intersection] == 0} {
+                    set v [$v getp next]
+                    #puts "DEBUG: Looping forward: $v -> [$v getp next]"
                     set unvisited [lreplace $unvisited [lsearch $unvisited $v] [lsearch $unvisited $v]]
-                    lappend poly [ghclip::vertex create {*}[$v getc]]
+                    lappend poly [ghclip::vertex create {*}[$v getp coord]]
                     set do1 0
                 }
             } else {
                 # Go backward to next intersection
                 set do1 1
-                while {$do1 || [$v get_is_intersection] == 0} {
-                    #puts "DEBUG: Looping backward: $v -> [$v get_prev]"
-                    set v [$v get_prev]
+                while {$do1 || [$v getp is_intersection] == 0} {
+                    #puts "DEBUG: Looping backward: $v -> [$v getp prev]"
+                    set v [$v getp prev]
                     set unvisited [lreplace $unvisited [lsearch $unvisited $v] [lsearch $unvisited $v]]
-                    lappend poly [ghclip::vertex create {*}[$v getc]]
+                    lappend poly [ghclip::vertex create {*}[$v getp coord]]
                     set do1 0
                 }
             }
             # swap
-            set v [$v get_neighbor]
+            set v [$v getp neighbor]
             # toggle dir index
             set dindex [expr {$dindex == 1 ? 0 : 1}]
             set do 0
@@ -252,7 +252,7 @@ proc ghclip::clip {p1 p2 {dir 0}} {
     foreach poly $polies {
         set rpoly {}
         foreach v $poly {
-            lappend rpoly {*}[$v getc]
+            lappend rpoly {*}[$v getp coord]
         }
         lappend rpolies $rpoly
     }
@@ -262,7 +262,7 @@ proc ghclip::clip {p1 p2 {dir 0}} {
 
 proc ghclip::get_next_non_intersection {v} {
     set curr $v
-    while {[[set curr [$curr get_next]] get_is_intersection] == 1} {
+    while {[[set curr [$curr getp next]] getp is_intersection] == 1} {
         if {$curr == $v} {
             puts "ERROR: This should never happen"
             break

@@ -2,10 +2,11 @@
 
 package require Tk
 
-lappend auto_path [file normalize [file join [pwd] ..]]
+set dir [file dirname [info script]]
+lappend auto_path [file normalize [file join $dir ..]]
 package require ghclip
 
-source ./testutils.tcl
+source [file join $dir testutils.tcl]
 
 set poly1 {
    50 150
