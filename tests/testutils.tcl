@@ -102,7 +102,7 @@ proc _clip_test {row col ops polylist} {
     $canv create text 0 0 -text $t -anchor nw
 
     # Do clipping
-    if {$t ne "Original" && [catch {set cliplist [ghclip::clip_exp {*}$e]} msg err]} {
+    if {$t ne "Original" && [catch {set cliplist [ghclip::clip {*}$e]} msg err]} {
         $canv create text 100 100 -text "ERROR" -fill \#ff0000
         puts [dict get $err -errorinfo]
         return

@@ -6,9 +6,8 @@ package require ghclip::polygon
 namespace eval ghclip {
     namespace export intersect
     namespace export create_intersections
+    namespace export ghclip
     namespace export clip
-    namespace export create_clip
-    namespace export clip_exp
 }
 
 # Algorithm taken from:
@@ -113,7 +112,7 @@ proc ghclip::create_intersections {poly1 poly2} {
     }
 }
 
-proc ghclip::clip {p1 p2 {dirs {0 0}}} {
+proc ghclip::ghclip {p1 p2 {dirs {0 0}}} {
     # (Phase 0) - create polygon objects
     set poly1 [polygon create $p1]
     set poly2 [polygon create $p2]
@@ -275,20 +274,19 @@ proc ghclip::lshift {listVar} {
 }
 
 # Translates and executes the desired operation
-proc ghclip::create_clip2 {op p1 p2} {
+proc ghclip::get_opcode {op} {
     switch -exact -- $op {
-        AND     {return [clip $p1 $p2 {0 0}]}
-        OR      {return [clip $p1 $p2 {1 1}]}
-        XOR     {return [clip $p1 $p2 {0 1}]}
-        #NOT  {return [create_clip AND [create_clip XOR $p1 $p2] $p2]}
-        NOT  {return [clip $p1 $p2 {1 0}]}
+        AND     {return {0 0}}
+        OR      {return {1 1}}
+        XOR     {return {0 1}}
+        NOT     {return {1 0}}
         default {
             error "Invalid operator in the expression:\n  $p1\n  $op\n  $p2"
         }
     }
 }
 
-proc ghclip::create_clip {op p1 p2} {
+proc ghclip::multi_clip {op p1 p2} {
     # Convert inputs to lists of polies
     if {[llength [lindex $p1 0]] == 1} {
         set p1 [list $p1]
@@ -301,13 +299,13 @@ proc ghclip::create_clip {op p1 p2} {
     set polylist {}
     foreach poly1 $p1 {
         foreach poly2 $p2 {
-            lappend polylist {*}[create_clip2 $op $poly1 $poly2]
+            lappend polylist {*}[ghclip $poly1 $poly2 [get_opcode $op]]
         }
     }
     return $polylist
 }
 
-proc ghclip::clip_exp {args} {
+proc ghclip::clip {args} {
     # Check args length
     if {([llength $args] - 1) % 2 != 0} {
         error "Argument list is of wrong length"
@@ -322,7 +320,7 @@ proc ghclip::clip_exp {args} {
         set op2 [lshift args]
 
         # perform calculation
-        set op1 [create_clip $operator $op1 $op2]
+        set op1 [multi_clip $operator $op1 $op2]
     }
     return $op1
 }
