@@ -2,6 +2,8 @@
 package provide ghclip::polygon 1.0
 
 namespace eval ghclip::polygon {
+    variable __doc__ "Parent namespace of all poly objects"
+
     namespace export create
 
     variable counter 0
@@ -10,26 +12,40 @@ namespace eval ghclip::polygon {
 }
 
 proc ghclip::polygon::create {poly} {
+    # Create a polygon object and return it
+    #
+    # Args
+    # poly - list of coordinate representation of a polygon
+    #
+    # The polygon object is "created" by making a unique namespace within the
+    # ghclip::polygon namespace. Because the namespace is unique, its data
+    # is also unique. The namespace contains several methods to inspect and
+    # manipulate the object
+
     variable counter
+
     set name P_${counter}
-    #puts "DEBUG: Creating polygon: $name"
     namespace eval $name {
-        namespace export create
-        #namespace export set_poly
+        variable __doc__ "Polygon object namespace"
+
+        namespace export init
         namespace export get_poly
         namespace export get_start
         namespace export get_vertices
         namespace export encloses
         namespace export get_unvisited_intersection
+        namespace ensemble create
         # "Starting" vertex of the polygon
         variable start_vertex
 
         proc get_start {} {
+            # Return the starting vertex of this polygon
             variable start_vertex
             return $start_vertex
         }
 
         proc get_unvisited_intersection {} {
+            # Get a single unvisited intersection of this polygon.
             variable start_vertex
 
             if {[$start_vertex getp is_intersection] && [set ${start_vertex}::visited] == 0} {
@@ -46,8 +62,11 @@ proc ghclip::polygon::create {poly} {
             return $curr
         }
 
-        proc create {poly} {
+        proc init {poly} {
+            # Initialize the vertices of this polygon
+
             variable start_vertex
+
             if {[llength $poly] % 2 != 0} {
                 puts "Input poly does not have even number of values"
                 return
@@ -71,8 +90,8 @@ proc ghclip::polygon::create {poly} {
             $new setp next $start_vertex
         }
 
-        # Returns even-number list of coordinates in this polygon
         proc get_poly {{vertices 0}} {
+            # Return even-number list of coordinates in this polygon
             variable start_vertex
             set poly {}
             set polyv {}
@@ -91,15 +110,16 @@ proc ghclip::polygon::create {poly} {
             }
         }
 
-        # Returns list of vertex objects belonging to this polygon
         proc get_vertices {} {
+            # Return list of vertex objects belonging to this polygon
             return [get_poly 1]
         }
 
-        # Test if point is inside this polygon
-        # Based off of algorithm here:
-        #   http://geomalgorithms.com/a03-_inclusion.html
         proc encloses {x y} {
+            # Test if point is inside this polygon
+            # Based off of algorithm here:
+            #   http://geomalgorithms.com/a03-_inclusion.html
+
             variable start_vertex
 
             # is_left(): tests if a point is Left|On|Right of an infinite line.
@@ -145,13 +165,10 @@ proc ghclip::polygon::create {poly} {
             }
             return [expr {abs($wn)}]
         }
-
-        namespace ensemble create
     }
 
-    $name create $poly
+    $name init $poly
 
     incr counter
-    set full_name "ghclip::polygon::$name"
-    return $full_name
+    return "::ghclip::polygon::$name"
 }
