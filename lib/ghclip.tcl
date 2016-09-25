@@ -130,92 +130,92 @@ proc ghclip::clip {p1 p2 {dirs {0 0}}} {
     if {[$poly2 encloses {*}[$start getp coord]] != 0} {
         # inside -> next intersection will be exit
         set entry 1
-    } else {
-        # outside
-        set entry 0
-    }
-    set current [$start getp next]
-    # skip first since it can't be an intersection?
-    while {$current ne $start} {
-        if {[$current getp is_intersection]} {
-            # if an intersection point, record entry/exit
-            $current setp entry $entry
-            set entry [expr {$entry ? 0 : 1}] ; #toggle
+        } else {
+            # outside
+            set entry 0
         }
-        set current [$current getp next]
-    }
-    # poly2
-    set start [$poly2 get_start]
-    if {[$poly1 encloses {*}[$start getp coord]] != 0} {
-        # inside -> next intersection will be exit
-        set entry 1
-    } else {
-        # outside
-        set entry 0
-    }
-    set current [$start getp next]
-    # skip first since it can't be an intersection?
-    while {$current ne $start} {
-        if {[$current getp is_intersection]} {
-            # if an intersection point, record entry/exit
-            $current setp entry $entry
-            set entry [expr {$entry ? 0 : 1}] ; #toggle
+        set current [$start getp next]
+        # skip first since it can't be an intersection?
+        while {$current ne $start} {
+            if {[$current getp is_intersection]} {
+                # if an intersection point, record entry/exit
+                $current setp entry $entry
+                set entry [expr {$entry ? 0 : 1}] ; #toggle
+            }
+            set current [$current getp next]
         }
-        set current [$current getp next]
-    }
-
-    # Phase 3
-    # Get initial set of all unvisited intersection vertices
-    set unvisited {}
-    set curr [$poly1 get_start]
-    set start $curr
-    set do 1
-    while {$do || $curr ne $start} {
-        if {[$curr getp is_intersection]} {
-            lappend unvisited $curr
-        }
-        set curr [$curr getp next]
-        set do 0
-    }
-    set curr [$poly2 get_start]
-    set start $curr
-    set do 1
-    while {$do || $curr ne $start} {
-        if {[$curr getp is_intersection]} {
-            lappend unvisited $curr
-        }
-        set curr [$curr getp next]
-        set do 0
-    }
-
-    set dindex 0
-    set polies {}
-    set inpoly 0
-    while {[llength $unvisited]} {
-        # Start traversing first unvisited intersection in poly1
-        set v [$poly1 get_unvisited_intersection]
-        set poly {}
-        lappend poly [ghclip::vertex create {*}[$v getp coord]]
-        set do 1
-        #puts "DEBUG: Starting new poly on $v"
-        #puts "DEBUG: Unvisited: $unvisited"
-        while {$do || [set ${v}::visited] == 0} {
-            # mark this and its neighbor as visited
-            set ${v}::visited 1
-            set [$v getp neighbor]::visited 1
-            set unvisited [lreplace $unvisited [lsearch $unvisited $v] [lsearch $unvisited $v]]
-            #puts "DEBUG: Unvisited: $unvisited"
-
-            if {[set ${v}::entry] == [lindex $dirs $dindex]} {
-                # Go forward to next intersection
-                set do1 1
-                while {$do1 || [$v getp is_intersection] == 0} {
-                    set v [$v getp next]
-                    #puts "DEBUG: Looping forward: $v -> [$v getp next]"
-                    set unvisited [lreplace $unvisited [lsearch $unvisited $v] [lsearch $unvisited $v]]
-                    lappend poly [ghclip::vertex create {*}[$v getp coord]]
-                    set do1 0
+        # poly2
+        set start [$poly2 get_start]
+        if {[$poly1 encloses {*}[$start getp coord]] != 0} {
+            # inside -> next intersection will be exit
+            set entry 1
+            } else {
+                # outside
+                set entry 0
+            }
+            set current [$start getp next]
+            # skip first since it can't be an intersection?
+            while {$current ne $start} {
+                if {[$current getp is_intersection]} {
+                    # if an intersection point, record entry/exit
+                    $current setp entry $entry
+                    set entry [expr {$entry ? 0 : 1}] ; #toggle
                 }
+                set current [$current getp next]
+            }
+
+            # Phase 3
+            # Get initial set of all unvisited intersection vertices
+            set unvisited {}
+            set curr [$poly1 get_start]
+            set start $curr
+            set do 1
+            while {$do || $curr ne $start} {
+                if {[$curr getp is_intersection]} {
+                    lappend unvisited $curr
+                }
+                set curr [$curr getp next]
+                set do 0
+            }
+            set curr [$poly2 get_start]
+            set start $curr
+            set do 1
+            while {$do || $curr ne $start} {
+                if {[$curr getp is_intersection]} {
+                    lappend unvisited $curr
+                }
+                set curr [$curr getp next]
+                set do 0
+            }
+
+            set dindex 0
+            set polies {}
+            set inpoly 0
+            while {[llength $unvisited]} {
+                # Start traversing first unvisited intersection in poly1
+                set v [$poly1 get_unvisited_intersection]
+                set poly {}
+                lappend poly [ghclip::vertex create {*}[$v getp coord]]
+                set do 1
+                #puts "DEBUG: Starting new poly on $v"
+                #puts "DEBUG: Unvisited: $unvisited"
+                while {$do || [set ${v}::visited] == 0} {
+                    # mark this and its neighbor as visited
+                    set ${v}::visited 1
+                    set [$v getp neighbor]::visited 1
+                    set unvisited [lreplace $unvisited [lsearch $unvisited $v] [lsearch $unvisited $v]]
+                    #puts "DEBUG: Unvisited: $unvisited"
+
+                    if {[set ${v}::entry] == [lindex $dirs $dindex]} {
+                        # Go forward to next intersection
+                        set do1 1
+                        while {$do1 || [$v getp is_intersection] == 0} {
+                            set v [$v getp next]
+                            #puts "DEBUG: Looping forward: $v -> [$v getp next]"
+                            set unvisited [lreplace $unvisited [lsearch $unvisited $v] [lsearch $unvisited $v]]
+                            lappend poly [ghclip::vertex create {*}[$v getp coord]]
+                            set do1 0
+                        }
             } else {
                 # Go backward to next intersection
                 set do1 1
@@ -276,59 +276,53 @@ proc ghclip::lshift {listVar} {
 
 # Translates and executes the desired operation
 proc ghclip::create_clip2 {op p1 p2} {
-  switch -exact -- $op {
-    AND     {return [clip $p1 $p2 {0 0}]}
-    OR      {return [clip $p1 $p2 {1 1}]}
-    XOR     {return [clip $p1 $p2 {0 1}]}
-    #NOT  {return [create_clip AND [create_clip XOR $p1 $p2] $p2]}
-    NOT  {return [clip $p1 $p2 {1 0}]}
-    default {
-      error "Invalid operator in the expression:\n  $p1\n  $op\n  $p2"
+    switch -exact -- $op {
+        AND     {return [clip $p1 $p2 {0 0}]}
+        OR      {return [clip $p1 $p2 {1 1}]}
+        XOR     {return [clip $p1 $p2 {0 1}]}
+        #NOT  {return [create_clip AND [create_clip XOR $p1 $p2] $p2]}
+        NOT  {return [clip $p1 $p2 {1 0}]}
+        default {
+            error "Invalid operator in the expression:\n  $p1\n  $op\n  $p2"
+        }
     }
-  }
 }
 
 proc ghclip::create_clip {op p1 p2} {
-  set p1l [llength [lindex $p1 0]]
-  set p2l [llength [lindex $p2 0]]
-  set polylist {}
-  if {$p1l > 1 && $p2l > 1} {
-    # Both inputs are multi-polies
-    foreach poly1 $p1 {
-      foreach poly2 $p2 {
-        lappend polylist {*}[create_clip2 $op $poly1 $poly2]
-      }
+    # Convert inputs to lists of polies
+    if {[llength [lindex $p1 0]] == 1} {
+        set p1 [list $p1]
     }
-  } elseif {$p1l > 1} {
-    foreach poly1 $p1 {
-      lappend polylist {*}[create_clip2 $op $poly1 $p2]
+    if {[llength [lindex $p2 0]] == 1} {
+        set p2 [list $p2]
     }
-  } elseif {$p2l > 1} {
+
+    # Loop through all
+    set polylist {}
     foreach poly1 $p1 {
-      lappend polylist {*}[create_clip2 $op $poly1 $p2]
+        foreach poly2 $p2 {
+            lappend polylist {*}[create_clip2 $op $poly1 $poly2]
+        }
     }
-  } else {
-    set polylist [create_clip2 $op $p1 $p2]
-  }
-  return $polylist
+    return $polylist
 }
 
 proc ghclip::clip_exp {args} {
-  # Check args length
-  if {([llength $args] - 1) % 2 != 0} {
-    error "Argument list is of wrong length"
-  }
+    # Check args length
+    if {([llength $args] - 1) % 2 != 0} {
+        error "Argument list is of wrong length"
+    }
 
-  # Evaluate expression step-by-step
-  set op1 [lindex $args 0]
-  set args [lrange $args 1 end]
-  while {[llength $args]} {
-    # shift operator and operand
-    set operator [lshift args]
-    set op2 [lshift args]
+    # Evaluate expression step-by-step
+    set op1 [lindex $args 0]
+    set args [lrange $args 1 end]
+    while {[llength $args]} {
+        # shift operator and operand
+        set operator [lshift args]
+        set op2 [lshift args]
 
-    # perform calculation
-    set op1 [create_clip $operator $op1 $op2]
-  }
-  return $op1
+        # perform calculation
+        set op1 [create_clip $operator $op1 $op2]
+    }
+    return $op1
 }
