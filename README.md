@@ -48,9 +48,10 @@ They can be specified in either form:
 - **closed**: The first and last coordinate are the same.
 - **unclosed**: The first and last coordinate are automatically connected.
 
-
-    set closed   {0 0 10 0 10 10 0 10 0 0}
-    set unclosed {0 0 10 0 10 10 0 10}
+```tcl
+set closed   {0 0 10 0 10 10 0 10 0 0}
+set unclosed {0 0 10 0 10 10 0 10}
+```
 
 `ghclip::clip` will always return unclosed polygon(s).
 

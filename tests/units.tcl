@@ -75,6 +75,16 @@ _suite "poly" {
         _assert_eq [llength [$pobj get_vertices]] 4
     }
     {
+        # Closed
+        set poly {200 200 250 200 250 250 200 250 200 200}
+        set pobj [ghclip::polygon create $poly]
+        _assert_eq [$pobj get_poly] [lrange $poly 0 end-2]
+        _assert_eq [[$pobj get_start] getp coord] {200 200}
+        _assert_eq [[[$pobj get_start] getp next] getp coord] {250 200}
+        _assert_eq [[[$pobj get_start] getp prev] getp coord] {200 250}
+        _assert_eq [llength [$pobj get_vertices]] 4
+    }
+    {
         # winding number
         set poly {200 200 250 200 250 250 200 250}
         set pobj [ghclip::polygon create $poly]

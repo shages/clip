@@ -73,6 +73,12 @@ proc ghclip::polygon::create {poly} {
                 return
             }
 
+            # Unclose closed poly
+            if {[lindex $poly 0] == [lindex $poly end-1] \
+                && [lindex $poly 1] == [lindex $poly end]} {
+                set poly [lrange $poly 0 end-2]
+            }
+
             set count 0
             foreach {x y} $poly {
                 if {$count > 0} {
@@ -85,8 +91,7 @@ proc ghclip::polygon::create {poly} {
                 set prev $new
                 incr count
             }
-            # Fix startpoint/endpoint
-            # Need to check these aren't the same point first
+            # Tie startpoint/endpoint together
             $start_vertex setp prev $new
             $new setp next $start_vertex
         }
