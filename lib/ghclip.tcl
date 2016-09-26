@@ -100,8 +100,8 @@ proc ghclip::create_intersections {poly1 poly2} {
                     if {$inters ne ""} {
                         #puts "DEBUG: FOUND INTERSECTION at: $inters"
                         # insert them
-                        set new1 [ghclip::vertex::insert_between {*}[lindex $inters 0] [lindex $inters 1 0] $prev1 [get_next_non_intersection $prev1]]
-                        set new2 [ghclip::vertex::insert_between {*}[lindex $inters 0] [lindex $inters 1 1] $prev2 [get_next_non_intersection $prev2]]
+                        set new1 [$poly1 insert_between {*}[lindex $inters 0] [lindex $inters 1 0] $prev1 [get_next_non_intersection $prev1]]
+                        set new2 [$poly2 insert_between {*}[lindex $inters 0] [lindex $inters 1 1] $prev2 [get_next_non_intersection $prev2]]
                         # Set neighbors
                         $new1 setp neighbor $new2
                         $new2 setp neighbor $new1

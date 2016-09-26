@@ -34,6 +34,7 @@ proc ghclip::polygon::create {poly} {
         namespace export get_vertices
         namespace export encloses
         namespace export get_unvisited_intersection
+        namespace export insert_between
         namespace ensemble create
         # "Starting" vertex of the polygon
         variable start_vertex
@@ -164,6 +165,34 @@ proc ghclip::polygon::create {poly} {
                 set current [$current getp next]
             }
             return [expr {abs($wn)}]
+        }
+
+        proc insert_between {x y alpha first last} {
+            # Insert new vertex between two vertices
+            #
+            # There may be other existing vertices between the specified first and
+            # last vertices. They should also be intersection vertices.
+            #
+            # Args:
+            # x         x coord
+            # y         y coord
+            # alpha     ratio of distance between first and last
+            # first     vertex to insert after
+            # last      vertex to insert before
+
+            # Find place to insert
+            set v $first
+            while {$v ne $last && [set ${v}::alpha] < $alpha} {
+                set v [$v getp next]
+            }
+
+            # Create new vertex, and then update adjacent vertices
+            set new [ghclip::vertex::create $x $y [$v getp prev] $v]
+            set ${new}::alpha $alpha
+            $v setp prev $new
+            [$new getp prev] setp next $new
+
+            return $new
         }
     }
 

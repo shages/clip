@@ -62,20 +62,6 @@ _suite "vertex" {
         _assert_eq [$v2 getp prev] $v1
         _assert_eq [$v2 getp next] null
     }
-    {
-        # Vertex insertion in between
-        set v1 [ghclip::vertex::create 0 0]
-        set v2 [ghclip::vertex::insert_after 10 10 $v1]
-        set v3 [ghclip::vertex::insert_between 5 5 0.5 $v1 $v2]
-        _assert_eq [$v1 getp next] $v3
-        _assert_eq [$v1 getp prev] null
-        _assert_eq [$v2 getp prev] $v3
-        _assert_eq [$v2 getp next] null
-        _assert_eq [$v3 getp prev] $v1
-        _assert_eq [$v3 getp next] $v2
-        _assert_eq [set ${v3}::alpha] 0.5
-        _assert_eq [$v3 getp is_intersection] 0
-    }
 }
 
 _suite "poly" {
@@ -114,6 +100,21 @@ _suite "poly" {
         _assert_eq [$pobj encloses 100 100] 1
         _assert_eq [$pobj encloses 175 175] 2
         _assert_eq [$pobj encloses 225 225] 0
+    }
+    {
+        # Vertex insertion in between
+        set poly [ghclip::polygon create {0 0 10 10}]
+        set v1 [$poly get_start]
+        set v2 [$v1 getp next]
+        set v3 [$poly insert_between 5 5 0.5 $v1 $v2]
+        _assert_eq [$v1 getp prev] $v2
+        _assert_eq [$v1 getp next] $v3
+        _assert_eq [$v2 getp prev] $v3
+        _assert_eq [$v2 getp next] $v1
+        _assert_eq [$v3 getp prev] $v1
+        _assert_eq [$v3 getp next] $v2
+        _assert_eq [set ${v3}::alpha] 0.5
+        _assert_eq [$v3 getp is_intersection] 0
     }
 }
 
