@@ -128,7 +128,7 @@ proc ghclip::create_intersections {poly1 poly2} {
     return $intersections_found
 }
 
-proc ghclip::ghclip {p1 p2 {dirs {0 0}}} {
+proc ghclip::ghclip {op p1 p2} {
     # Execute the Greiner-Hormann polygon clipping algorithm
     #
     # Args
@@ -141,36 +141,27 @@ proc ghclip::ghclip {p1 p2 {dirs {0 0}}} {
     set poly1 [polygon create $p1]
     set poly2 [polygon create $p2]
     if {[create_intersections $poly1 $poly2] == 0} {
-        # None found
-        # TODO: Check if one poly is inside the other
+        # Either p1 is inside p2, p2 is inside p1, or they are disjoint
         if {[$poly1 encloses_poly $poly2]} {
-            puts "p1 encloses p2"
-            if {$dirs eq {0 0}} {
-                # AND
+            if {$op eq "AND"} {
                 return [list $p2]
-            } elseif {$dirs eq {1 1}} {
-                # OR
+            } elseif {$op eq "OR"} {
                 return [list $p1]
             } else {
-                # NOT - return a hole
                 return [list $p1 $p2]
             }
         } elseif {[$poly2 encloses_poly $poly1]} {
-            puts "p2 encloses p1"
-            if {$dirs eq {0 0}} {
-                # AND
+            if {$op eq "AND"} {
                 return [list $p1]
-            } elseif {$dirs eq {1 1}} {
-                # OR
+            } elseif {$op eq "OR"} {
                 return [list $p2]
             } else {
-                # NOT - return a hole
                 return [list $p2 $p1]
             }
         } else {
-            if {$dirs eq {0 0}} {
+            if {$op eq "AND"} {
                 return {}
-            } elseif {$dirs eq {1 1}} {
+            } elseif {$op eq "OR"} {
                 return [list $p1 $p2]
             } else {
                 return [list $p1]
@@ -242,6 +233,7 @@ proc ghclip::ghclip {p1 p2 {dirs {0 0}}} {
         set do 0
     }
 
+    set dirs [get_opcode $op]
     set dindex 0
     set polies {}
     set inpoly 0
@@ -251,21 +243,17 @@ proc ghclip::ghclip {p1 p2 {dirs {0 0}}} {
         set poly {}
         lappend poly [ghclip::vertex create {*}[$v getp coord]]
         set do 1
-        #puts "DEBUG: Starting new poly on $v"
-        #puts "DEBUG: Unvisited: $unvisited"
         while {$do || [set ${v}::visited] == 0} {
             # mark this and its neighbor as visited
             set ${v}::visited 1
             set [$v getp neighbor]::visited 1
             set unvisited [lreplace $unvisited [lsearch $unvisited $v] [lsearch $unvisited $v]]
-            #puts "DEBUG: Unvisited: $unvisited"
 
             if {[set ${v}::entry] == [lindex $dirs $dindex]} {
                 # Go forward to next intersection
                 set do1 1
                 while {$do1 || [$v getp is_intersection] == 0} {
                     set v [$v getp next]
-                    #puts "DEBUG: Looping forward: $v -> [$v getp next]"
                     set unvisited [lreplace $unvisited [lsearch $unvisited $v] [lsearch $unvisited $v]]
                     lappend poly [ghclip::vertex create {*}[$v getp coord]]
                     set do1 0
@@ -274,7 +262,6 @@ proc ghclip::ghclip {p1 p2 {dirs {0 0}}} {
                 # Go backward to next intersection
                 set do1 1
                 while {$do1 || [$v getp is_intersection] == 0} {
-                    #puts "DEBUG: Looping backward: $v -> [$v getp prev]"
                     set v [$v getp prev]
                     set unvisited [lreplace $unvisited [lsearch $unvisited $v] [lsearch $unvisited $v]]
                     lappend poly [ghclip::vertex create {*}[$v getp coord]]
@@ -300,7 +287,6 @@ proc ghclip::ghclip {p1 p2 {dirs {0 0}}} {
         }
         lappend rpolies $rpoly
     }
-    #puts "DEBUG: Returning: $rpolies"
     return $rpolies
 }
 
@@ -383,7 +369,6 @@ proc ghclip::multi_clip {op p1 p2} {
             foreach arg $p2 {
                 lappend args NOT $arg
             }
-            puts "DEBUG: $args"
             lappend polylist {*}[clip {*}$args]
         }
         foreach poly $p2 {
@@ -391,13 +376,12 @@ proc ghclip::multi_clip {op p1 p2} {
             foreach arg $p1 {
                 lappend args NOT $arg
             }
-            puts "DEBUG: $args"
             lappend polylist {*}[clip {*}$args]
         }
     } else {
         foreach poly1 $p1 {
             foreach poly2 $p2 {
-                lappend polylist {*}[ghclip $poly1 $poly2 [get_opcode $op]]
+                lappend polylist {*}[ghclip $op $poly1 $poly2]
             }
         }
     }
