@@ -2,7 +2,7 @@
 A TCL implementation of the Greiner-Hormann polygon clipping algorithm.
 
 ## Install
-The package can be used directly once downloaded.
+Download and directly load in TCL
 
     lappend auto_path /path/to/ghclip
     package require ghclip
@@ -16,7 +16,7 @@ The package can be used directly once downloaded.
 - Degenerate cases are not currently supported in any way. See Tests for more
 details.
 - Polygons with holes are not supported as inputs, although the algorithm
-can return polygons with holes.
+may return polygons with holes.
 
 ## Usage
 Clipping is done by forming expressions with `ghclip::clip`.
@@ -54,8 +54,6 @@ They can be specified in either form:
 set closed   {0 0 10 0 10 10 0 10 0 0}
 set unclosed {0 0 10 0 10 10 0 10}
 ```
-
-`ghclip::clip` will always return unclosed polygon(s).
 
 ### Multiple Polygons
 Clipping may result in multiple polygons, in which case a list of polygons is
