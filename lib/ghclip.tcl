@@ -241,7 +241,7 @@ proc ghclip::ghclip {op p1 p2} {
         # Start traversing first unvisited intersection in poly1
         set v [$poly1 get_unvisited_intersection]
         set poly {}
-        lappend poly [ghclip::vertex create {*}[$v getp coord]]
+        lappend poly [vertex create [$v getp coord]]
         set do 1
         while {$do || [set ${v}::visited] == 0} {
             # mark this and its neighbor as visited
@@ -255,7 +255,7 @@ proc ghclip::ghclip {op p1 p2} {
                 while {$do1 || [$v getp is_intersection] == 0} {
                     set v [$v getp next]
                     set unvisited [lreplace $unvisited [lsearch $unvisited $v] [lsearch $unvisited $v]]
-                    lappend poly [ghclip::vertex create {*}[$v getp coord]]
+                    lappend poly [vertex create [$v getp coord]]
                     set do1 0
                 }
             } else {
@@ -264,7 +264,7 @@ proc ghclip::ghclip {op p1 p2} {
                 while {$do1 || [$v getp is_intersection] == 0} {
                     set v [$v getp prev]
                     set unvisited [lreplace $unvisited [lsearch $unvisited $v] [lsearch $unvisited $v]]
-                    lappend poly [ghclip::vertex create {*}[$v getp coord]]
+                    lappend poly [vertex create [$v getp coord]]
                     set do1 0
                 }
             }

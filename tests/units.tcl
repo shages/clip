@@ -30,37 +30,28 @@ _suite "lshift" {
 
 _suite "vertex" {
     {
-        set v1 [ghclip::vertex::create 40 10]
+        set v1 [ghclip::vertex create {40 10}]
         _assert_eq [$v1 getp coord] {40 10}
     }
     {
-        set v1 [ghclip::vertex::create 20 30]
+        set v1 [ghclip::vertex create {20 30}]
         _assert_eq [$v1 getp coord] {20 30}
     }
     {
-        set v1 [ghclip::vertex::create 10.0 10.0]
+        set v1 [ghclip::vertex create {10.0 10.0}]
         _assert_eq [$v1 getp coord] {10.0 10.0}
     }
     {
-        set v1 [ghclip::vertex::create ]
+        set v1 [ghclip::vertex create ]
         _assert_eq [$v1 getp coord] {0 0}
     }
     {
-        set v1 [ghclip::vertex::create 0 0]
+        set v1 [ghclip::vertex create {0 0}]
         _assert_eq [$v1 getp next] null
         _assert_eq [$v1 getp prev] null
         _assert_eq [$v1 getp neighbor] null
         _assert_eq [$v1 getp is_intersection] 0
         _assert_eq [$v1 getp entry] -1
-    }
-    {
-        # Vertex insertion
-        set v1 [ghclip::vertex::create 0 0]
-        set v2 [ghclip::vertex::insert_after 10 10 $v1]
-        _assert_eq [$v1 getp next] $v2
-        _assert_eq [$v1 getp prev] null
-        _assert_eq [$v2 getp prev] $v1
-        _assert_eq [$v2 getp next] null
     }
 }
 

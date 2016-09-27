@@ -40,6 +40,39 @@ proc ghclip::polygon::create {poly} {
         # "Starting" vertex of the polygon
         variable start_vertex
 
+        proc init {poly} {
+            # Initialize the vertices of this polygon
+
+            variable start_vertex
+
+            if {[llength $poly] % 2 != 0} {
+                puts "Input poly does not have even number of values"
+                return
+            }
+
+            # Unclose closed poly
+            if {[lindex $poly 0] == [lindex $poly end-1] \
+                && [lindex $poly 1] == [lindex $poly end]} {
+                set poly [lrange $poly 0 end-2]
+            }
+
+            set count 0
+            foreach {x y} $poly {
+                if {$count > 0} {
+                    set new [ghclip::vertex create [list $x $y] $prev]
+                    $prev setp next $new
+                } else {
+                    set new [ghclip::vertex create [list $x $y]]
+                    set start_vertex $new
+                }
+                set prev $new
+                incr count
+            }
+            # Tie startpoint/endpoint together
+            $start_vertex setp prev $new
+            $new setp next $start_vertex
+        }
+
         proc get_start {} {
             # Return the starting vertex of this polygon
             variable start_vertex
@@ -62,39 +95,6 @@ proc ghclip::polygon::create {poly} {
                 }
             }
             return $curr
-        }
-
-        proc init {poly} {
-            # Initialize the vertices of this polygon
-
-            variable start_vertex
-
-            if {[llength $poly] % 2 != 0} {
-                puts "Input poly does not have even number of values"
-                return
-            }
-
-            # Unclose closed poly
-            if {[lindex $poly 0] == [lindex $poly end-1] \
-                && [lindex $poly 1] == [lindex $poly end]} {
-                set poly [lrange $poly 0 end-2]
-            }
-
-            set count 0
-            foreach {x y} $poly {
-                if {$count > 0} {
-                    set new [ghclip::vertex create $x $y $prev]
-                    $prev setp next $new
-                } else {
-                    set new [ghclip::vertex create $x $y]
-                    set start_vertex $new
-                }
-                set prev $new
-                incr count
-            }
-            # Tie startpoint/endpoint together
-            $start_vertex setp prev $new
-            $new setp next $start_vertex
         }
 
         proc get_poly {{vertices 0}} {
@@ -209,7 +209,7 @@ proc ghclip::polygon::create {poly} {
             }
 
             # Create new vertex, and then update adjacent vertices
-            set new [ghclip::vertex::create $x $y [$v getp prev] $v]
+            set new [ghclip::vertex create [list $x $y] [$v getp prev] $v]
             set ${new}::alpha $alpha
             $v setp prev $new
             [$new getp prev] setp next $new

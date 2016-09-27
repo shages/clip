@@ -3,7 +3,6 @@ package provide ghclip::vertex 1.0
 
 namespace eval ghclip::vertex {
     namespace export create
-    namespace export insert_after
 
     namespace ensemble create
 
@@ -11,7 +10,7 @@ namespace eval ghclip::vertex {
 }
 
 
-proc ghclip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
+proc ghclip::vertex::create {{coord {0 0}} {prev null} {next null}} {
     # Create new vertex as a namespace with ensemle sub commands
     # Namespaces are tracked with $ghclip::vertex::counter
     #
@@ -25,6 +24,7 @@ proc ghclip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
 
     set name V_${counter}
     namespace eval $name {
+        namespace export init
         namespace export setp
         namespace export getp
         namespace ensemble create
@@ -38,6 +38,16 @@ proc ghclip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
         variable entry -1
         variable alpha 0.0
         variable visited 0
+
+        proc init {Coord Prev Next} {
+            variable coord
+            variable prev
+            variable next
+
+            set coord $Coord
+            set prev $Prev
+            set next $Next
+        }
 
         proc setp {prop value} {
             # Set property value
@@ -56,26 +66,8 @@ proc ghclip::vertex::create {{x 0} {y 0} {prev null} {next null}} {
         }
     }
 
-    $name setp coord [list $x $y]
-    $name setp prev $prev
-    $name setp next $next
+    $name init $coord $prev $next
+
     incr counter
     return "::ghclip::vertex::$name"
-}
-
-proc ghclip::vertex::insert_after {x y first} {
-    # Insert new vertex after another and update prev/next pointers
-    #
-    # Args
-    # x         x coord
-    # y         y coord
-    # first     vertex to insert after
-
-    set second [$first getp next]
-    set new [create $x $y $first $second]
-    $first setp next $new
-    if {$second ne "null"} {
-        $second setp prev $new
-    }
-    return $new
 }
