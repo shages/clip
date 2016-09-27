@@ -321,20 +321,6 @@ proc ghclip::ghclip {op p1 p2} {
     return $rpolies
 }
 
-proc ghclip::lshift {listVar} {
-    # Remove the first item from the specified list and return its value
-
-    upvar 1 $listVar l
-    if {![info exists l]} {
-        # make the error message show the real variable name
-        error "can't read \"$listVar\": no such variable"
-    }
-    if {![llength $l]} {error Empty}
-    set r [lindex $l 0]
-    set l [lreplace $l [set l 0] 0]
-    return $r
-}
-
 proc ghclip::multi_clip {op p1 p2} {
     # Handle multiple polygon list inputs and perform the specified operation
     #
@@ -396,18 +382,9 @@ proc ghclip::clip {args} {
 
     if {([llength $args] - 1) % 2 != 0} {
         error "Argument list is of wrong length"
+    } elseif {[llength $args] == 3} {
+        return [multi_clip [lindex $args 1] [lindex $args 0] [lindex $args 2]]
+    } else {
+        return [multi_clip [lindex $args end-1] [clip {*}[lrange $args 0 end-2]] [lindex $args end]]
     }
-
-    # Evaluate expression step-by-step
-    set op1 [lindex $args 0]
-    set args [lrange $args 1 end]
-    while {[llength $args]} {
-        # shift operator and operand
-        set operator [lshift args]
-        set op2 [lshift args]
-
-        # perform calculation
-        set op1 [multi_clip $operator $op1 $op2]
-    }
-    return $op1
 }
