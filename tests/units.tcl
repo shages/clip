@@ -9,25 +9,6 @@ source [file join $dir testutils.tcl]
 
 _init
 
-# lshift
-_suite "lshift" {
-    {
-        set var {}
-        catch {[ghclip::lshift var]} msg err
-        _assert_eq [dict get $err -errorstack INNER returnStk] Empty
-    }
-    {
-        set var {0}
-        _assert_eq [ghclip::lshift var] 0
-        _assert_eq $var {}
-    }
-    {
-        set var {0 1 2}
-        _assert_eq [ghclip::lshift var] 0
-        _assert_eq $var {1 2}
-    }
-}
-
 _suite "vertex" {
     {
         set v1 [ghclip::vertex create {40 10}]
