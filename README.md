@@ -1,22 +1,24 @@
 # ghclip
 A TCL implementation of the Greiner-Hormann polygon clipping algorithm.
 
-### Install
+## Install
 The package can be used directly once downloaded.
 
     lappend auto_path /path/to/ghclip
     package require ghclip
 
-### Support
+## Support
 - The following boolean operations are supported
-    * AND - intersection
-    * OR - union
-    * XOR - difference
-    * NOT - subtraction
-- Degenerate cases are not currently supported. See Tests for details.
-- Polygons with holes are not supported.
+    * **AND** - intersection
+    * **OR** - union
+    * **NOT** - difference
+    * **XOR** - (A NOT B) OR (B NOT A)
+- Degenerate cases are not currently supported in any way. See Tests for more
+details.
+- Polygons with holes are not supported as inputs, although the algorithm
+can return polygons with holes.
 
-### Usage
+## Usage
 Clipping is done by forming expressions with `ghclip::clip`.
 
 ```tcl
@@ -39,7 +41,7 @@ ghlip::clip [ghclip::clip $poly1 OR $poly2] AND $poly3
 Polygons are clipped strictly left to right. Use command substitution to
 achieve the desired clipping.
 
-#### Polygon Format
+### Polygon Format
 Polygons must be specified as a flat list of coordinates.
 
     set poly {0 0 10 0 10 10 0 10 0 0}
@@ -55,33 +57,35 @@ set unclosed {0 0 10 0 10 10 0 10}
 
 `ghclip::clip` will always return unclosed polygon(s).
 
-#### Multiple Polygons
+### Multiple Polygons
 Clipping may result in multiple polygons, in which case a list of polygons is
 returned. The return value is always a list of list(s) regardless of the actual
 result.
 
-### Tests
+## Tests
 
     cd tests
     make all
 
-Core functionality is tested with `units.tcl`. Various clipping cases are shown with
-`tN-<case>.tcl`, but the results aren't guaranteed to be correct.
+Core functionality is tested with `units.tcl`. Various clipping cases are shown
+with `tN-<case>.tcl`, but not all results are correct.
 
-The following cases produce incorrect results.
+Tests t1-t4 are expected to be correct. t5-t7 are degenerate cases and
+are not expected to be correct.
 
+Specific notes:
 - **t1-self-intersect-1**
-    - A XOR B
+    - A OR B - *This is actually correct* but drawn incorrectly. The result
+    contains holes which aren't drawn.
 - **t2-square-diamond**
-    - A XOR B
+    - All correct
 - **t3-three-squares**
-    - A NOT B OR C
-    - anything with XOR
+    - All correct
 - **t4-enclosed**
-    - all fail
-- **t5-identiy**
-    - all fail
-- **t6-degenerate-1**
+    - XOR and NOT cases are again correct, but drawn incorrectly due to holes.
+- **t5-identiy** (*degenerate*)
     - all fail or can't be trusted
-- **t7-degenerate-2**
+- **t6-triangle-square-1** (*degenerate*)
+    - all fail or can't be trusted
+- **t7-triangle-square-2** (*degenerate*)
     - all fail or can't be trusted

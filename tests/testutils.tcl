@@ -120,6 +120,7 @@ proc _clip_test {row col ops polylist} {
             foreach poly $cliplist {
                 $canv create polygon {*}$poly -fill \#00ff00 -outline {}
             }
+            return $cliplist
         }
     }
 }
