@@ -33,6 +33,7 @@ proc ghclip::polygon::create {poly} {
         namespace export get_start
         namespace export get_vertices
         namespace export encloses
+        namespace export encloses_poly
         namespace export get_unvisited_intersection
         namespace export insert_between
         namespace ensemble create
@@ -121,6 +122,22 @@ proc ghclip::polygon::create {poly} {
             return [get_poly 1]
         }
 
+        proc encloses_poly {other_poly} {
+            # Check if all vertices of other_poly are enclosed by this poly.
+            # Assume there are no intersections (already checked)
+            #
+            # Args
+            # other_poly - The other polygon object to compare against
+
+            set this [namespace qualifiers [lindex [info level 0] 0]]
+            foreach vertex [$other_poly get_vertices] {
+                if {[$this encloses {*}[$vertex getp coord]]} {
+                    return 1
+                }
+            }
+            return 0
+        }
+
         proc encloses {x y} {
             # Test if point is inside this polygon
             # Based off of algorithm here:
@@ -169,7 +186,7 @@ proc ghclip::polygon::create {poly} {
                 set prev $current
                 set current [$current getp next]
             }
-            return [expr {abs($wn)}]
+            return [expr {abs($wn) % 2}]
         }
 
         proc insert_between {x y alpha first last} {

@@ -76,7 +76,12 @@ proc ghclip::create_intersections {poly1 poly2} {
     # Args
     # poly1 - Subject polygon
     # poly2 - Clipping polygon
+    #
+    # Return
+    # 1 - Intersections found
+    # 0 - No intersections found
 
+    set intersections_found 0
     set start1 [$poly1 get_start]
     set prev1 $start1
     set current1 [$start1 getp next]
@@ -98,7 +103,7 @@ proc ghclip::create_intersections {poly1 poly2} {
                     [list {*}[[lindex $line2 0] getp coord] {*}[[lindex $line2 1] getp coord]] \
                     ]
                     if {$inters ne ""} {
-                        #puts "DEBUG: FOUND INTERSECTION at: $inters"
+                        set intersections_found 1
                         # insert them
                         set new1 [$poly1 insert_between {*}[lindex $inters 0] [lindex $inters 1 0] $prev1 [get_next_non_intersection $prev1]]
                         set new2 [$poly2 insert_between {*}[lindex $inters 0] [lindex $inters 1 1] $prev2 [get_next_non_intersection $prev2]]
@@ -120,6 +125,7 @@ proc ghclip::create_intersections {poly1 poly2} {
         set current1 [$current1 getp next]
         set dof1 0
     }
+    return $intersections_found
 }
 
 proc ghclip::ghclip {p1 p2 {dirs {0 0}}} {
@@ -134,7 +140,43 @@ proc ghclip::ghclip {p1 p2 {dirs {0 0}}} {
     # Phase 1 - Initialize polygons and create intersections
     set poly1 [polygon create $p1]
     set poly2 [polygon create $p2]
-    create_intersections $poly1 $poly2
+    if {[create_intersections $poly1 $poly2] == 0} {
+        # None found
+        # TODO: Check if one poly is inside the other
+        if {[$poly1 encloses_poly $poly2]} {
+            puts "p1 encloses p2"
+            if {$dirs eq {0 0}} {
+                # AND
+                return [list $p2]
+            } elseif {$dirs eq {1 1}} {
+                # OR
+                return [list $p1]
+            } else {
+                # NOT - return a hole
+                return [list $p1 $p2]
+            }
+        } elseif {[$poly2 encloses_poly $poly1]} {
+            puts "p2 encloses p1"
+            if {$dirs eq {0 0}} {
+                # AND
+                return [list $p1]
+            } elseif {$dirs eq {1 1}} {
+                # OR
+                return [list $p2]
+            } else {
+                # NOT - return a hole
+                return [list $p2 $p1]
+            }
+        } else {
+            if {$dirs eq {0 0}} {
+                return {}
+            } elseif {$dirs eq {1 1}} {
+                return [list $p1 $p2]
+            } else {
+                return [list $p1]
+            }
+        }
+    }
 
     # Phase 2 - Mark entry and exit points
     # Start at the startpoint and figure out if you're inside or outside poly1
@@ -300,7 +342,6 @@ proc ghclip::get_opcode {op} {
     switch -exact -- [string toupper $op] {
         AND     {return {0 0}}
         OR      {return {1 1}}
-        XOR     {return {0 1}}
         NOT     {return {1 0}}
         default {
             error "Invalid operator in the expression:\n  $p1\n  $op\n  $p2"
@@ -325,9 +366,39 @@ proc ghclip::multi_clip {op p1 p2} {
     }
 
     set polylist {}
-    foreach poly1 $p1 {
-        foreach poly2 $p2 {
-            lappend polylist {*}[ghclip $poly1 $poly2 [get_opcode $op]]
+    if {$op eq "XOR"} {
+        # XOR isn't distributive, so expand the function:
+        # p1 = p11 OR p12 OR ... OR p1n
+        # p2 = p21 OR p22 OR ... OR p2n
+        # p1 XOR p2 =   p11 ANDNOT p21 ANDNOT p22 ANDNOT ... ANDNOT p2n
+        #            OR p12 ANDNOT p21 ANDNOT p22 ANDNOT ... ANDNOT p2n
+        #            OR ...
+        #            OR p1n ANDNOT p21 ANDNOT p22 ANDNOT ... ANDNOT p2n
+        #            OR p21 ANDNOT p11 ANDNOT p12 ANDNOT ... ANDNOT p1n
+        #            OR p22 ANDNOT p11 ANDNOT p12 ANDNOT ... ANDNOT p1n
+        #            OR ...
+        #            OR p2n ANDNOT p11 ANDNOT p12 ANDNOT ... ANDNOT p1n
+        foreach poly $p1 {
+            set args [list $poly]
+            foreach arg $p2 {
+                lappend args NOT $arg
+            }
+            puts "DEBUG: $args"
+            lappend polylist {*}[clip {*}$args]
+        }
+        foreach poly $p2 {
+            set args [list $poly]
+            foreach arg $p1 {
+                lappend args NOT $arg
+            }
+            puts "DEBUG: $args"
+            lappend polylist {*}[clip {*}$args]
+        }
+    } else {
+        foreach poly1 $p1 {
+            foreach poly2 $p2 {
+                lappend polylist {*}[ghclip $poly1 $poly2 [get_opcode $op]]
+            }
         }
     }
     return $polylist

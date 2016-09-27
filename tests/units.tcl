@@ -108,7 +108,7 @@ _suite "poly" {
         set pobj [ghclip::polygon create $poly]
         _assert_eq [$pobj encloses 0 0] 0
         _assert_eq [$pobj encloses 100 100] 1
-        _assert_eq [$pobj encloses 175 175] 2
+        _assert_eq [$pobj encloses 175 175] 0
         _assert_eq [$pobj encloses 225 225] 0
     }
     {
