@@ -131,19 +131,23 @@ proc ghclip::polygon::create {poly} {
 
             set this [namespace qualifiers [lindex [info level 0] 0]]
             foreach vertex [$other_poly get_vertices] {
-                if {[$this encloses {*}[$vertex getp coord]]} {
+                if {[$this encloses $vertex]} {
                     return 1
                 }
             }
             return 0
         }
 
-        proc encloses {x y} {
+        proc encloses {vertex} {
             # Test if point is inside this polygon
             # Based off of algorithm here:
             #   http://geomalgorithms.com/a03-_inclusion.html
 
             variable start_vertex
+
+            set coord [$vertex getp coord]
+            set x [lindex $coord 0]
+            set y [lindex $coord 1]
 
             # is_left(): tests if a point is Left|On|Right of an infinite line.
             #    Input:  three points P0, P1, and P2

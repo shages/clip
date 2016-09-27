@@ -70,6 +70,24 @@ proc ghclip::intersect {s c} {
     ] [list $t $u]]
 }
 
+proc ghclip::get_next_non_intersection {v} {
+    # Get the next vertex which isn't an intersection point
+    #
+    # Starts at the provided vertex and follows the linked list until a vertex
+    # which is not an intersection is encountered
+    #
+    # Args
+    # v - Starting vertex object
+    set curr $v
+    while {[[set curr [$curr getp next]] getp is_intersection] == 1} {
+        if {$curr == $v} {
+            puts "ERROR: This should never happen"
+            break
+        }
+    }
+    return $curr
+}
+
 proc ghclip::create_intersections {poly1 poly2} {
     # Find intersections and create them in each polygon
     #
@@ -128,6 +146,19 @@ proc ghclip::create_intersections {poly1 poly2} {
     return $intersections_found
 }
 
+proc ghclip::get_opcode {op} {
+    # Translate human readable operation into opcode for ghclip proc
+
+    switch -exact -- [string toupper $op] {
+        AND     {return {0 0}}
+        OR      {return {1 1}}
+        NOT     {return {1 0}}
+        default {
+            error "Invalid operator in the expression:\n  $p1\n  $op\n  $p2"
+        }
+    }
+}
+
 proc ghclip::ghclip {op p1 p2} {
     # Execute the Greiner-Hormann polygon clipping algorithm
     #
@@ -172,7 +203,7 @@ proc ghclip::ghclip {op p1 p2} {
     # Phase 2 - Mark entry and exit points
     # Start at the startpoint and figure out if you're inside or outside poly1
     set start [$poly1 get_start]
-    if {[$poly2 encloses {*}[$start getp coord]] != 0} {
+    if {[$poly2 encloses $start] != 0} {
         # inside -> next intersection will be exit
         set entry 1
     } else {
@@ -191,7 +222,7 @@ proc ghclip::ghclip {op p1 p2} {
     }
     # poly2
     set start [$poly2 get_start]
-    if {[$poly1 encloses {*}[$start getp coord]] != 0} {
+    if {[$poly1 encloses $start] != 0} {
         # inside -> next intersection will be exit
         set entry 1
     } else {
@@ -290,24 +321,6 @@ proc ghclip::ghclip {op p1 p2} {
     return $rpolies
 }
 
-proc ghclip::get_next_non_intersection {v} {
-    # Get the next vertex which isn't an intersection point
-    #
-    # Starts at the provided vertex and follows the linked list until a vertex
-    # which is not an intersection is encountered
-    #
-    # Args
-    # v - Starting vertex object
-    set curr $v
-    while {[[set curr [$curr getp next]] getp is_intersection] == 1} {
-        if {$curr == $v} {
-            puts "ERROR: This should never happen"
-            break
-        }
-    }
-    return $curr
-}
-
 proc ghclip::lshift {listVar} {
     # Remove the first item from the specified list and return its value
 
@@ -320,19 +333,6 @@ proc ghclip::lshift {listVar} {
     set r [lindex $l 0]
     set l [lreplace $l [set l 0] 0]
     return $r
-}
-
-proc ghclip::get_opcode {op} {
-    # Translate human readable operation into opcode for ghclip proc
-
-    switch -exact -- [string toupper $op] {
-        AND     {return {0 0}}
-        OR      {return {1 1}}
-        NOT     {return {1 0}}
-        default {
-            error "Invalid operator in the expression:\n  $p1\n  $op\n  $p2"
-        }
-    }
 }
 
 proc ghclip::multi_clip {op p1 p2} {

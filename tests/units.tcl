@@ -79,8 +79,8 @@ _suite "poly" {
         # winding number
         set poly {200 200 250 200 250 250 200 250}
         set pobj [ghclip::polygon create $poly]
-        _assert_eq [$pobj encloses 225 225] 1
-        _assert_eq [$pobj encloses 100 100] 0
+        _assert_eq [$pobj encloses [ghclip::vertex create {225 225}]] 1
+        _assert_eq [$pobj encloses [ghclip::vertex create {100 100}]] 0
     }
     {
         # winding number with self intersection
@@ -97,10 +97,10 @@ _suite "poly" {
             100 100
         }
         set pobj [ghclip::polygon create $poly]
-        _assert_eq [$pobj encloses 0 0] 0
-        _assert_eq [$pobj encloses 100 100] 1
-        _assert_eq [$pobj encloses 175 175] 0
-        _assert_eq [$pobj encloses 225 225] 0
+        _assert_eq [$pobj encloses [ghclip::vertex create {0 0}]] 0
+        _assert_eq [$pobj encloses [ghclip::vertex create {100 100}]] 1
+        _assert_eq [$pobj encloses [ghclip::vertex create {175 175}]] 0
+        _assert_eq [$pobj encloses [ghclip::vertex create {225 225}]] 0
     }
     {
         # Vertex insertion in between
