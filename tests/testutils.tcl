@@ -76,7 +76,9 @@ proc _assert_eq {a b} {
   }
 }
 
-proc _clip_test {row col ops polylist} {
+proc _clip_test {row col ops polylist {resultdir .}} {
+    file mkdir $resultdir
+
     # create valid canvas
     while {[info command [set canv ".c[incr i]"]] ne ""} {}
     grid [canvas $canv -width 200 -height 200 -background \#ffffff]
@@ -102,6 +104,7 @@ proc _clip_test {row col ops polylist} {
     $canv create text 0 0 -text $t -anchor nw
 
     # Do clipping
+    set cliplist {}
     if {$t ne "Original" && [catch {set cliplist [ghclip::clip {*}$e]} msg err]} {
         $canv create text 100 100 -text "ERROR" -fill \#ff0000
         puts [dict get $err -errorinfo]
@@ -120,7 +123,11 @@ proc _clip_test {row col ops polylist} {
             foreach poly $cliplist {
                 $canv create polygon {*}$poly -fill \#00ff00 -outline {}
             }
-            return $cliplist
         }
     }
+    # Write output
+    set fname "r${row}_${col}"
+    puts "Writing postscript for r=$row c=$col"
+    $canv postscript -file $resultdir/${fname}.ps -width 200 -height 200 -pagewidth 200 -pageheight 200 -x 0 -y 0 -pageanchor nw
+    return $cliplist
 }
