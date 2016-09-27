@@ -11,21 +11,21 @@ proc _init {} {
 proc _summarize {} {
     puts ""
   if {$___test::total_errors} {
-    puts ".########.########..########...#######..########...######."
-    puts ".##.......##.....##.##.....##.##.....##.##.....##.##....##"
-    puts ".##.......##.....##.##.....##.##.....##.##.....##.##......"
-    puts ".######...########..########..##.....##.########...######."
-    puts ".##.......##...##...##...##...##.....##.##...##.........##"
-    puts ".##.......##....##..##....##..##.....##.##....##..##....##"
-    puts ".########.##.....##.##.....##..#######..##.....##..######."
+    puts "########    ###    #### ##"
+    puts "##         ## ##    ##  ##"
+    puts "##        ##   ##   ##  ##"
+    puts "######   ##     ##  ##  ##"
+    puts "##       #########  ##  ##"
+    puts "##       ##     ##  ##  ##"
+    puts "##       ##     ## #### ########"
   } else {
-    puts ".########.....###.....######...######."
-    puts ".##.....##...##.##...##....##.##....##"
-    puts ".##.....##..##...##..##.......##......"
-    puts ".########..##.....##..######...######."
-    puts ".##........#########.......##.......##"
-    puts ".##........##.....##.##....##.##....##"
-    puts ".##........##.....##..######...######."
+    puts "########     ###     ######   ######"
+    puts "##     ##   ## ##   ##    ## ##    ##"
+    puts "##     ##  ##   ##  ##       ##"
+    puts "########  ##     ##  ######   ######"
+    puts "##        #########       ##       ##"
+    puts "##        ##     ## ##    ## ##    ##"
+    puts "##        ##     ##  ######   ######"
   }
   puts ""
 
@@ -76,7 +76,9 @@ proc _assert_eq {a b} {
   }
 }
 
-proc _clip_test {row col ops polylist} {
+proc _clip_test {row col ops polylist {resultdir .}} {
+    file mkdir $resultdir
+
     # create valid canvas
     while {[info command [set canv ".c[incr i]"]] ne ""} {}
     grid [canvas $canv -width 200 -height 200 -background \#ffffff]
@@ -99,11 +101,12 @@ proc _clip_test {row col ops polylist} {
         }
     }
     # Write expression
-    $canv create text 0 0 -text $t -anchor nw
+    $canv create text 0 0 -text $t -anchor nw -font {courier 10}
 
     # Do clipping
-    if {$t ne "Original" && [catch {set cliplist [ghclip::clip_exp {*}$e]} msg err]} {
-        $canv create text 100 100 -text "ERROR" -fill \#ff0000
+    set cliplist {}
+    if {$t ne "Original" && [catch {set cliplist [ghclip::clip {*}$e]} msg err]} {
+        $canv create text 100 100 -text "ERROR" -fill \#ff0000 -font {courier 10}
         puts [dict get $err -errorinfo]
         return
     }
@@ -111,7 +114,7 @@ proc _clip_test {row col ops polylist} {
     # Draw polylist
     for {set i 0} {$i < [llength $polylist]} {incr i} {
         $canv create polygon {*}[lindex $polylist $i] -fill {} -outline [lindex $colors $i] -width 2
-        $canv create text 0 [expr ($i+1)*10] -text [lindex $letters $i] -fill [lindex $colors $i] -anchor nw
+        $canv create text 0 [expr ($i+1)*10] -text [lindex $letters $i] -fill [lindex $colors $i] -anchor nw -font {courier 10}
     }
 
     # Draw clipped polygon
@@ -122,4 +125,9 @@ proc _clip_test {row col ops polylist} {
             }
         }
     }
+    # Write output
+    set fname "r${row}_${col}"
+    puts "Writing postscript for r=$row c=$col"
+    $canv postscript -file $resultdir/${fname}.ps -width 200 -height 200 -pagewidth 200 -pageheight 200 -x 0 -y 0 -pageanchor nw
+    return $cliplist
 }

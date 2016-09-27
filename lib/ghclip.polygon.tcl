@@ -2,6 +2,8 @@
 package provide ghclip::polygon 1.0
 
 namespace eval ghclip::polygon {
+    variable __doc__ "Parent namespace of all poly objects"
+
     namespace export create
 
     variable counter 0
@@ -10,26 +12,75 @@ namespace eval ghclip::polygon {
 }
 
 proc ghclip::polygon::create {poly} {
+    # Create a polygon object and return it
+    #
+    # Args
+    # poly - list of coordinate representation of a polygon
+    #
+    # The polygon object is "created" by making a unique namespace within the
+    # ghclip::polygon namespace. Because the namespace is unique, its data
+    # is also unique. The namespace contains several methods to inspect and
+    # manipulate the object
+
     variable counter
+
     set name P_${counter}
-    #puts "DEBUG: Creating polygon: $name"
     namespace eval $name {
-        namespace export create
-        #namespace export set_poly
+        variable __doc__ "Polygon object namespace"
+
+        namespace export init
         namespace export get_poly
         namespace export get_start
         namespace export get_vertices
         namespace export encloses
+        namespace export encloses_poly
         namespace export get_unvisited_intersection
+        namespace export insert_between
+        namespace ensemble create
         # "Starting" vertex of the polygon
         variable start_vertex
 
+        proc init {poly} {
+            # Initialize the vertices of this polygon
+
+            variable start_vertex
+
+            if {[llength $poly] % 2 != 0} {
+                puts "Input poly does not have even number of values"
+                return
+            }
+
+            # Unclose closed poly
+            if {[lindex $poly 0] == [lindex $poly end-1] \
+                && [lindex $poly 1] == [lindex $poly end]} {
+                set poly [lrange $poly 0 end-2]
+            }
+
+            set count 0
+            foreach {x y} $poly {
+                if {$count > 0} {
+                    set new [ghclip::vertex create [list $x $y] $prev]
+                    $prev setp next $new
+                } else {
+                    set new [ghclip::vertex create [list $x $y]]
+                    set start_vertex $new
+                }
+                set prev $new
+                incr count
+            }
+            # Tie startpoint/endpoint together
+            $start_vertex setp prev $new
+            $new setp next $start_vertex
+        }
+
         proc get_start {} {
+            # Return the starting vertex of this polygon
             variable start_vertex
             return $start_vertex
         }
 
         proc get_unvisited_intersection {} {
+            # Get a single unvisited intersection of this polygon.
             variable start_vertex
 
             if {[$start_vertex getp is_intersection] && [set ${start_vertex}::visited] == 0} {
@@ -46,33 +97,8 @@ proc ghclip::polygon::create {poly} {
             return $curr
         }
 
-        proc create {poly} {
-            variable start_vertex
-            if {[llength $poly] % 2 != 0} {
-                puts "Input poly does not have even number of values"
-                return
-            }
-
-            set count 0
-            foreach {x y} $poly {
-                if {$count > 0} {
-                    set new [ghclip::vertex create $x $y $prev]
-                    $prev setp next $new
-                } else {
-                    set new [ghclip::vertex create $x $y]
-                    set start_vertex $new
-                }
-                set prev $new
-                incr count
-            }
-            # Fix startpoint/endpoint
-            # Need to check these aren't the same point first
-            $start_vertex setp prev $new
-            $new setp next $start_vertex
-        }
-
-        # Returns even-number list of coordinates in this polygon
         proc get_poly {{vertices 0}} {
+            # Return even-number list of coordinates in this polygon
             variable start_vertex
             set poly {}
             set polyv {}
@@ -91,16 +117,37 @@ proc ghclip::polygon::create {poly} {
             }
         }
 
-        # Returns list of vertex objects belonging to this polygon
         proc get_vertices {} {
+            # Return list of vertex objects belonging to this polygon
             return [get_poly 1]
         }
 
-        # Test if point is inside this polygon
-        # Based off of algorithm here:
-        #   http://geomalgorithms.com/a03-_inclusion.html
-        proc encloses {x y} {
+        proc encloses_poly {other_poly} {
+            # Check if all vertices of other_poly are enclosed by this poly.
+            # Assume there are no intersections (already checked)
+            #
+            # Args
+            # other_poly - The other polygon object to compare against
+
+            set this [namespace qualifiers [lindex [info level 0] 0]]
+            foreach vertex [$other_poly get_vertices] {
+                if {[$this encloses $vertex]} {
+                    return 1
+                }
+            }
+            return 0
+        }
+
+        proc encloses {vertex} {
+            # Test if point is inside this polygon
+            # Based off of algorithm here:
+            #   http://geomalgorithms.com/a03-_inclusion.html
+
             variable start_vertex
+
+            set coord [$vertex getp coord]
+            set x [lindex $coord 0]
+            set y [lindex $coord 1]
 
             # is_left(): tests if a point is Left|On|Right of an infinite line.
             #    Input:  three points P0, P1, and P2
@@ -143,15 +190,40 @@ proc ghclip::polygon::create {poly} {
                 set prev $current
                 set current [$current getp next]
             }
-            return [expr {abs($wn)}]
+            return [expr {abs($wn) % 2}]
         }
 
-        namespace ensemble create
+        proc insert_between {x y alpha first last} {
+            # Insert new vertex between two vertices
+            #
+            # There may be other existing vertices between the specified first and
+            # last vertices. They should also be intersection vertices.
+            #
+            # Args:
+            # x         x coord
+            # y         y coord
+            # alpha     ratio of distance between first and last
+            # first     vertex to insert after
+            # last      vertex to insert before
+
+            # Find place to insert
+            set v $first
+            while {$v ne $last && [set ${v}::alpha] < $alpha} {
+                set v [$v getp next]
+            }
+
+            # Create new vertex, and then update adjacent vertices
+            set new [ghclip::vertex create [list $x $y] [$v getp prev] $v]
+            set ${new}::alpha $alpha
+            $v setp prev $new
+            [$new getp prev] setp next $new
+
+            return $new
+        }
     }
 
-    $name create $poly
+    $name init $poly
 
     incr counter
-    set full_name "ghclip::polygon::$name"
-    return $full_name
+    return "::ghclip::polygon::$name"
 }
