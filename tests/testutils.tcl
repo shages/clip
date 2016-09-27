@@ -101,12 +101,12 @@ proc _clip_test {row col ops polylist {resultdir .}} {
         }
     }
     # Write expression
-    $canv create text 0 0 -text $t -anchor nw
+    $canv create text 0 0 -text $t -anchor nw -font {courier 10}
 
     # Do clipping
     set cliplist {}
     if {$t ne "Original" && [catch {set cliplist [ghclip::clip {*}$e]} msg err]} {
-        $canv create text 100 100 -text "ERROR" -fill \#ff0000
+        $canv create text 100 100 -text "ERROR" -fill \#ff0000 -font {courier 10}
         puts [dict get $err -errorinfo]
         return
     }
@@ -114,7 +114,7 @@ proc _clip_test {row col ops polylist {resultdir .}} {
     # Draw polylist
     for {set i 0} {$i < [llength $polylist]} {incr i} {
         $canv create polygon {*}[lindex $polylist $i] -fill {} -outline [lindex $colors $i] -width 2
-        $canv create text 0 [expr ($i+1)*10] -text [lindex $letters $i] -fill [lindex $colors $i] -anchor nw
+        $canv create text 0 [expr ($i+1)*10] -text [lindex $letters $i] -fill [lindex $colors $i] -anchor nw -font {courier 10}
     }
 
     # Draw clipped polygon

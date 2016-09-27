@@ -66,12 +66,15 @@ result.
 
     cd tests
     make all
+    make png
 
 Core functionality is tested with `units.tcl`. Various clipping cases are shown
 with `tN-<case>.tcl`, but not all results are correct.
 
 Tests t1-t4 are expected to be correct. t5-t7 are degenerate cases and
 are not expected to be correct.
+
+Results in postscript and png are dumped into /tests/results/
 
 Specific notes:
 - **t1-self-intersect-1**
@@ -89,3 +92,14 @@ Specific notes:
     - all fail or can't be trusted
 - **t7-triangle-square-2** (*degenerate*)
     - all fail or can't be trusted
+
+## Examples
+![Alt text](/tests/results/t3-three-squares/r2_0.png?raw=true "A XOR B")
+
+![Alt text](/tests/results/t3-three-squares/r2_1.png?raw=true "A XOR B OR C")
+
+![Alt text](/tests/results/t3-three-squares/r2_2.png?raw=true "A XOR B AND C")
+
+![Alt text](/tests/results/t3-three-squares/r2_3.png?raw=true "A XOR B XOR C")
+
+![Alt text](/tests/results/t3-three-squares/r2_4.png?raw=true "A XOR B NOT C")
