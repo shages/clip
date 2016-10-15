@@ -35,7 +35,7 @@ ghclip::clip $poly1 OR $poly2 AND $poly3
 
 and embedded
 ```tcl
-ghlip::clip [ghclip::clip $poly1 OR $poly2] AND $poly3
+ghclip::clip [ghclip::clip $poly1 OR $poly2] AND $poly3
 ```
 
 Polygons are clipped strictly left to right. Use command substitution to
